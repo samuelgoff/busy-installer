@@ -23,6 +23,11 @@
   Repo-local wrappers/platform launchers own `.venv` bootstrap; installed
   console scripts run inside the environment where the package is already
   installed.
+- The repo now also ships a user-bin installer helper:
+  - `python3 scripts/install_user_commands.py`
+  - installs the repo's public `pf` / `pillowfort` / `busy` wrappers into a
+    user bin directory so a local clone can expose those commands globally
+    without a separate package-install step
 - The default user-facing path is now maintenance-first:
   - no-arg entrypoints route through `repair`
   - fresh workspaces still complete a full install because `repair` falls back

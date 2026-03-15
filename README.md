@@ -58,6 +58,17 @@ python3 scripts/bootstrap_env.py --dev
 . .venv/bin/activate
 ```
 
+If you want the repo-local commands available from any shell on this machine,
+install the public wrappers into your user bin directory:
+
+```bash
+python3 scripts/install_user_commands.py
+```
+
+On POSIX hosts this installs `pf`, `pillowfort`, and `busy` into
+`~/.local/bin` by default. On Windows it installs the matching `.cmd` and
+`.ps1` wrappers into `~/bin` by default.
+
 Run tests and the bundled-manifest smoke check from that venv:
 
 ```bash
@@ -286,4 +297,5 @@ enforce.
 - `busy_installer/` - runtime engine + CLI
 - `docs/installer-manifest.yaml` - manifest example
 - `busy_installer/platform/*` - platform wrappers
+- `scripts/install_user_commands.py` - install `pf` / `pillowfort` / `busy` into a user bin directory
 - `tests/` - unit coverage
