@@ -46,6 +46,9 @@
     target bin directory
   - generated Windows `.cmd` user-bin shims now quote their internal
     environment-variable assignments, so repo paths with spaces remain safe
+  - user-bin install now preflights the full target set before writing any
+    wrapper, so one foreign target cannot leave the bin directory in a partial
+    mixed-installed state
 - The default user-facing path is now maintenance-first:
   - no-arg entrypoints route through `repair`
   - fresh workspaces still complete a full install because `repair` falls back

@@ -95,6 +95,33 @@ def test_force_refuses_to_replace_foreign_files(tmp_path: Path) -> None:
     assert foreign.read_text(encoding="utf-8") == "foreign"
 
 
+def test_foreign_target_preflight_prevents_partial_install(tmp_path: Path) -> None:
+    root = Path(__file__).resolve().parents[1]
+    bin_dir = tmp_path / "bin"
+    bin_dir.mkdir(parents=True)
+
+    foreign_name = "busy" if os.name != "nt" else "busy.cmd"
+    (bin_dir / foreign_name).write_text("foreign", encoding="utf-8")
+
+    with pytest.raises(SystemExit, match="refusing to replace non-managed target"):
+        install_user_commands(repo_root=root, bin_dir=bin_dir, force=False)
+
+    expected_names = ("pf", "pillowfort", "busy") if os.name != "nt" else (
+        "pf.cmd",
+        "pillowfort.cmd",
+        "busy.cmd",
+        "pf.ps1",
+        "pillowfort.ps1",
+        "busy.ps1",
+    )
+    for name in expected_names:
+        target = bin_dir / name
+        if name == foreign_name:
+            assert target.read_text(encoding="utf-8") == "foreign"
+        else:
+            assert not target.exists()
+
+
 def test_path_hint_lines_are_shell_specific(tmp_path: Path) -> None:
     bin_dir = tmp_path / "bin"
 

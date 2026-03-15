@@ -119,14 +119,6 @@ def _target_state(repo_root: Path, source: Path, target: Path) -> str:
 
 
 def _install_one(repo_root: Path, source: Path, target: Path, *, force: bool) -> str:
-    state = _target_state(repo_root, source, target)
-    if state != "missing":
-        if state in {"foreign-file", "foreign-symlink", "broken-symlink", "foreign-directory"}:
-            raise SystemExit(f"refusing to replace non-managed target: {target} ({state})")
-        if not force:
-            raise SystemExit(f"target already exists: {target} (use --force to replace it)")
-        target.unlink()
-
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_bytes(_managed_wrapper_bytes(repo_root, source.name))
     if os.name != "nt":
@@ -135,12 +127,23 @@ def _install_one(repo_root: Path, source: Path, target: Path, *, force: bool) ->
 
 
 def install_user_commands(*, repo_root: Path, bin_dir: Path, force: bool) -> list[tuple[str, Path, str]]:
-    installed: list[tuple[str, Path, str]] = []
+    planned: list[tuple[str, Path, Path, str]] = []
     for name in _public_commands():
         source = repo_root / name
         if not source.is_file():
             raise SystemExit(f"missing public command wrapper: {source}")
         target = bin_dir / name
+        state = _target_state(repo_root, source, target)
+        if state in {"foreign-file", "foreign-symlink", "broken-symlink", "foreign-directory"}:
+            raise SystemExit(f"refusing to replace non-managed target: {target} ({state})")
+        if state != "missing" and not force:
+            raise SystemExit(f"target already exists: {target} (use --force to replace it)")
+        planned.append((name, source, target, state))
+
+    installed: list[tuple[str, Path, str]] = []
+    for name, source, target, state in planned:
+        if state != "missing":
+            target.unlink()
         mode = _install_one(repo_root, source, target, force=force)
         installed.append((name, target, mode))
     return installed

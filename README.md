@@ -80,7 +80,9 @@ bootstrap the correct checkout even after being placed in another directory.
 entrypoint on the host. `--force` only replaces installer-managed wrappers; it
 refuses to clobber unrelated files already present in the target bin directory.
 Generated Windows `.cmd` shims now also quote their internal environment
-assignments so repo paths with spaces stay safe.
+assignments so repo paths with spaces stay safe. Install now preflights the
+whole target set before writing anything, so a foreign target fails closed
+without leaving a partially installed command set behind.
 
 Run tests and the bundled-manifest smoke check from that venv:
 
