@@ -25,9 +25,13 @@
   installed.
 - The repo now also ships a user-bin installer helper:
   - `python3 scripts/install_user_commands.py`
+  - `python3 scripts/install_user_commands.py --status`
+  - `python3 scripts/install_user_commands.py --uninstall`
   - installs the repo's public `pf` / `pillowfort` / `busy` wrappers into a
     user bin directory so a local clone can expose those commands globally
     without a separate package-install step
+  - status/uninstall only manage wrappers that still match this checkout,
+    avoiding accidental removal of unrelated files in the same bin directory
 - The default user-facing path is now maintenance-first:
   - no-arg entrypoints route through `repair`
   - fresh workspaces still complete a full install because `repair` falls back

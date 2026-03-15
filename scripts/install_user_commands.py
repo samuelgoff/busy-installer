@@ -61,6 +61,38 @@ def install_user_commands(*, repo_root: Path, bin_dir: Path, force: bool) -> lis
     return installed
 
 
+def inspect_user_commands(*, repo_root: Path, bin_dir: Path) -> list[tuple[str, Path, str]]:
+    observed: list[tuple[str, Path, str]] = []
+    for name in _public_commands():
+        source = repo_root / name
+        target = bin_dir / name
+        if target.is_symlink():
+            try:
+                state = "managed-symlink" if target.resolve() == source.resolve() else "foreign-symlink"
+            except OSError:
+                state = "broken-symlink"
+        elif target.is_file():
+            try:
+                state = "managed-copy" if target.read_bytes() == source.read_bytes() else "foreign-file"
+            except OSError:
+                state = "foreign-file"
+        else:
+            state = "missing"
+        observed.append((name, target, state))
+    return observed
+
+
+def uninstall_user_commands(*, repo_root: Path, bin_dir: Path) -> list[tuple[str, Path, str]]:
+    removed: list[tuple[str, Path, str]] = []
+    for name, target, state in inspect_user_commands(repo_root=repo_root, bin_dir=bin_dir):
+        if state in {"managed-symlink", "managed-copy"}:
+            target.unlink()
+            removed.append((name, target, "removed"))
+            continue
+        removed.append((name, target, "skipped"))
+    return removed
+
+
 def _path_contains(bin_dir: Path) -> bool:
     entries = [Path(entry).expanduser() for entry in os.environ.get("PATH", "").split(os.pathsep) if entry]
     target = bin_dir.expanduser().resolve()
@@ -97,17 +129,44 @@ def _parse_args() -> argparse.Namespace:
         action="store_true",
         help="replace existing targets in the bin directory",
     )
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument(
+        "--status",
+        action="store_true",
+        help="report whether the user bin directory already contains managed command wrappers",
+    )
+    mode.add_argument(
+        "--uninstall",
+        action="store_true",
+        help="remove managed command wrappers from the target user bin directory",
+    )
     return parser.parse_args()
 
 
 def main() -> int:
     args = _parse_args()
     repo_root = _repo_root()
-    installed = install_user_commands(repo_root=repo_root, bin_dir=args.bin_dir.expanduser(), force=args.force)
-    print(f"[command-install] installed into {args.bin_dir.expanduser()}")
+    bin_dir = args.bin_dir.expanduser()
+
+    if args.status:
+        print(f"[command-install] status for {bin_dir}")
+        for name, target, state in inspect_user_commands(repo_root=repo_root, bin_dir=bin_dir):
+            print(f"[command-install] {name} -> {target} ({state})")
+        _print_path_hint(bin_dir)
+        return 0
+
+    if args.uninstall:
+        print(f"[command-install] uninstall from {bin_dir}")
+        for name, target, state in uninstall_user_commands(repo_root=repo_root, bin_dir=bin_dir):
+            print(f"[command-install] {name} -> {target} ({state})")
+        _print_path_hint(bin_dir)
+        return 0
+
+    installed = install_user_commands(repo_root=repo_root, bin_dir=bin_dir, force=args.force)
+    print(f"[command-install] installed into {bin_dir}")
     for name, target, mode in installed:
         print(f"[command-install] {name} -> {target} ({mode})")
-    _print_path_hint(args.bin_dir.expanduser())
+    _print_path_hint(bin_dir)
     return 0
 
 
