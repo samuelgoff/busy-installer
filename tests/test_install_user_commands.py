@@ -124,6 +124,7 @@ def test_foreign_target_preflight_prevents_partial_install(tmp_path: Path) -> No
 
 def test_path_hint_lines_are_shell_specific(tmp_path: Path) -> None:
     bin_dir = tmp_path / "bin"
+    windows_bin_dir = tmp_path / "bin & tools"
 
     assert path_hint_lines(bin_dir, shell="zsh") == [
         f'export PATH="{bin_dir}:$PATH"',
@@ -138,8 +139,8 @@ def test_path_hint_lines_are_shell_specific(tmp_path: Path) -> None:
         '$userPath = [Environment]::GetEnvironmentVariable("Path", "User")',
         f'if (($userPath -split ";") -notcontains "{bin_dir}") ' + "{ [Environment]::SetEnvironmentVariable(\"Path\", (\"" + str(bin_dir) + ';\" + $userPath).TrimEnd(\';\'), \"User\") }',
     ]
-    assert path_hint_lines(bin_dir, shell="cmd") == [
-        f"set PATH={bin_dir};%PATH%",
+    assert path_hint_lines(windows_bin_dir, shell="cmd") == [
+        f'set "PATH={windows_bin_dir};%PATH%"',
         "Use System Properties > Environment Variables for a persistent cmd PATH update,",
         "or run the PowerShell persistence command shown by --shell powershell.",
     ]

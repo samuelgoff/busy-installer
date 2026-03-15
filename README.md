@@ -84,8 +84,8 @@ assignments so repo paths with spaces stay safe. Install now preflights the
 whole target set before writing anything, so a foreign target fails closed
 without leaving a partially installed command set behind. Windows PATH hints
 now avoid the unsafe `setx PATH "%PATH%"` style; `cmd` gets a temporary PATH
-command plus an explicit pointer to either System Properties or the safer
-PowerShell persistence command.
+command using quoted `set "PATH=..."` syntax plus an explicit pointer to either
+System Properties or the safer PowerShell persistence command.
 
 Run tests and the bundled-manifest smoke check from that venv:
 

@@ -45,7 +45,8 @@
     wrappers and refuses to overwrite foreign files already present in the
     target bin directory
   - Windows PATH hint output now avoids the unsafe `setx PATH "%PATH%"` style;
-    `cmd` guidance now points operators to either System Properties or the
+    the temporary `cmd` command now also uses quoted `set "PATH=..."` syntax,
+    and persistent guidance points operators to either System Properties or the
     safer PowerShell persistence command
   - generated Windows `.cmd` user-bin shims now quote their internal
     environment-variable assignments, so repo paths with spaces remain safe

@@ -213,7 +213,7 @@ def path_hint_lines(bin_dir: Path, shell: str = "auto") -> list[str]:
         ]
     if normalized_shell == "cmd":
         return [
-            f"set PATH={path_value};%PATH%",
+            f'set "PATH={path_value};%PATH%"',
             "Use System Properties > Environment Variables for a persistent cmd PATH update,",
             "or run the PowerShell persistence command shown by --shell powershell.",
         ]
