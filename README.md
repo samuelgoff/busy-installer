@@ -79,6 +79,8 @@ bootstrap the correct checkout even after being placed in another directory.
 `python3` but fall back to `python` when that is the available Python 3
 entrypoint on the host. `--force` only replaces installer-managed wrappers; it
 refuses to clobber unrelated files already present in the target bin directory.
+Generated Windows `.cmd` shims now also quote their internal environment
+assignments so repo paths with spaces stay safe.
 
 Run tests and the bundled-manifest smoke check from that venv:
 

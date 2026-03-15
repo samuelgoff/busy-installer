@@ -35,16 +35,16 @@ def _shim_content(repo_root: Path, name: str) -> str:
         return (
             "@echo off\n"
             "setlocal\n\n"
-            f"set ROOT={root}\n"
-            "set BOOTSTRAP=%ROOT%scripts\\bootstrap_env.py\n"
-            "set VENV_PYTHON=%ROOT%.venv\\Scripts\\python.exe\n\n"
+            f'set "ROOT={root}"\n'
+            'set "BOOTSTRAP=%ROOT%scripts\\bootstrap_env.py"\n'
+            'set "VENV_PYTHON=%ROOT%.venv\\Scripts\\python.exe"\n\n'
             "where python3 >nul 2>nul\n"
             "if %errorlevel%==0 (\n"
-            "  set PYTHON=python3\n"
+            '  set "PYTHON=python3"\n'
             ") else (\n"
             "  where python >nul 2>nul\n"
             "  if %errorlevel%==0 (\n"
-            "    set PYTHON=python\n"
+            '    set "PYTHON=python"\n'
             "  ) else (\n"
             "    echo Python 3 not found. Install Python 3.10+ and rerun. 1>&2\n"
             "    exit /b 1\n"
