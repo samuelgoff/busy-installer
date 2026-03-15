@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
+import pytest
 
 from scripts.install_user_commands import (
     inspect_user_commands,
@@ -73,6 +74,19 @@ def test_uninstall_also_removes_legacy_managed_symlinks(tmp_path: Path) -> None:
     removed = uninstall_user_commands(repo_root=root, bin_dir=bin_dir)
     assert removed[0][2] == "removed"
     assert not legacy.exists()
+
+
+def test_force_refuses_to_replace_foreign_files(tmp_path: Path) -> None:
+    root = Path(__file__).resolve().parents[1]
+    bin_dir = tmp_path / "bin"
+    bin_dir.mkdir(parents=True)
+    foreign = bin_dir / ("pf" if os.name != "nt" else "pf.cmd")
+    foreign.write_text("foreign", encoding="utf-8")
+
+    with pytest.raises(SystemExit, match="refusing to replace non-managed target"):
+        install_user_commands(repo_root=root, bin_dir=bin_dir, force=True)
+
+    assert foreign.read_text(encoding="utf-8") == "foreign"
 
 
 def test_path_hint_lines_are_shell_specific(tmp_path: Path) -> None:

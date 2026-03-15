@@ -41,6 +41,9 @@
   - POSIX user-bin shims now prefer `python3` but fall back to `python`,
     matching the more forgiving interpreter discovery already used by the
     Windows shims
+  - `--force` on the user-bin helper now only replaces installer-managed
+    wrappers and refuses to overwrite foreign files already present in the
+    target bin directory
 - The default user-facing path is now maintenance-first:
   - no-arg entrypoints route through `repair`
   - fresh workspaces still complete a full install because `repair` falls back

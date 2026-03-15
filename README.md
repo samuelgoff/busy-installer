@@ -77,7 +77,8 @@ bootstrap the correct checkout even after being placed in another directory.
 `--shell` lets the helper print shell-specific PATH guidance for `bash`, `zsh`,
 `fish`, `powershell`, `pwsh`, `cmd`, or `sh`. The POSIX shims prefer
 `python3` but fall back to `python` when that is the available Python 3
-entrypoint on the host.
+entrypoint on the host. `--force` only replaces installer-managed wrappers; it
+refuses to clobber unrelated files already present in the target bin directory.
 
 Run tests and the bundled-manifest smoke check from that venv:
 

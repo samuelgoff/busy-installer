@@ -97,14 +97,35 @@ def _managed_wrapper_bytes(repo_root: Path, name: str) -> bytes:
     return _shim_content(repo_root, name).encode("utf-8")
 
 
+def _target_state(repo_root: Path, source: Path, target: Path) -> str:
+    if target.is_symlink():
+        try:
+            return "legacy-managed-symlink" if target.resolve() == source.resolve() else "foreign-symlink"
+        except OSError:
+            return "broken-symlink"
+    if target.is_file():
+        try:
+            payload = target.read_bytes()
+            if payload == _managed_wrapper_bytes(repo_root, source.name):
+                return "managed-shim"
+            if payload == _legacy_wrapper_content(repo_root, source.name):
+                return "legacy-managed-copy"
+        except OSError:
+            pass
+        return "foreign-file"
+    if target.exists():
+        return "foreign-directory"
+    return "missing"
+
+
 def _install_one(repo_root: Path, source: Path, target: Path, *, force: bool) -> str:
-    if target.exists() or target.is_symlink():
+    state = _target_state(repo_root, source, target)
+    if state != "missing":
+        if state in {"foreign-file", "foreign-symlink", "broken-symlink", "foreign-directory"}:
+            raise SystemExit(f"refusing to replace non-managed target: {target} ({state})")
         if not force:
             raise SystemExit(f"target already exists: {target} (use --force to replace it)")
-        if target.is_dir() and not target.is_symlink():
-            shutil.rmtree(target)
-        else:
-            target.unlink()
+        target.unlink()
 
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_bytes(_managed_wrapper_bytes(repo_root, source.name))
@@ -130,24 +151,7 @@ def inspect_user_commands(*, repo_root: Path, bin_dir: Path) -> list[tuple[str, 
     for name in _public_commands():
         source = repo_root / name
         target = bin_dir / name
-        if target.is_symlink():
-            try:
-                state = "legacy-managed-symlink" if target.resolve() == source.resolve() else "foreign-symlink"
-            except OSError:
-                state = "broken-symlink"
-        elif target.is_file():
-            try:
-                payload = target.read_bytes()
-                if payload == _managed_wrapper_bytes(repo_root, name):
-                    state = "managed-shim"
-                elif payload == _legacy_wrapper_content(repo_root, name):
-                    state = "legacy-managed-copy"
-                else:
-                    state = "foreign-file"
-            except OSError:
-                state = "foreign-file"
-        else:
-            state = "missing"
+        state = _target_state(repo_root, source, target)
         observed.append((name, target, state))
     return observed
 
