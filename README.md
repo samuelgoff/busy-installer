@@ -82,7 +82,10 @@ refuses to clobber unrelated files already present in the target bin directory.
 Generated Windows `.cmd` shims now also quote their internal environment
 assignments so repo paths with spaces stay safe. Install now preflights the
 whole target set before writing anything, so a foreign target fails closed
-without leaving a partially installed command set behind.
+without leaving a partially installed command set behind. Windows PATH hints
+now avoid the unsafe `setx PATH "%PATH%"` style; `cmd` gets a temporary PATH
+command plus an explicit pointer to either System Properties or the safer
+PowerShell persistence command.
 
 Run tests and the bundled-manifest smoke check from that venv:
 

@@ -208,12 +208,14 @@ def path_hint_lines(bin_dir: Path, shell: str = "auto") -> list[str]:
     if normalized_shell in {"powershell", "pwsh"}:
         return [
             f'$env:Path = "{path_value};" + $env:Path',
-            f'[Environment]::SetEnvironmentVariable("Path", "{path_value};" + [Environment]::GetEnvironmentVariable("Path", "User"), "User")',
+            '$userPath = [Environment]::GetEnvironmentVariable("Path", "User")',
+            f'if (($userPath -split ";") -notcontains "{path_value}") ' + "{ [Environment]::SetEnvironmentVariable(\"Path\", (\"" + path_value + ';\" + $userPath).TrimEnd(\';\'), \"User\") }',
         ]
     if normalized_shell == "cmd":
         return [
             f"set PATH={path_value};%PATH%",
-            f'setx PATH "{path_value};%PATH%"',
+            "Use System Properties > Environment Variables for a persistent cmd PATH update,",
+            "or run the PowerShell persistence command shown by --shell powershell.",
         ]
     return [f"Add {path_value} to your PATH to run pf / pillowfort / busy from any shell."]
 

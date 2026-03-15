@@ -44,6 +44,9 @@
   - `--force` on the user-bin helper now only replaces installer-managed
     wrappers and refuses to overwrite foreign files already present in the
     target bin directory
+  - Windows PATH hint output now avoids the unsafe `setx PATH "%PATH%"` style;
+    `cmd` guidance now points operators to either System Properties or the
+    safer PowerShell persistence command
   - generated Windows `.cmd` user-bin shims now quote their internal
     environment-variable assignments, so repo paths with spaces remain safe
   - user-bin install now preflights the full target set before writing any
