@@ -34,6 +34,9 @@ def test_install_user_commands_installs_public_wrappers(tmp_path: Path) -> None:
         assert str(root.resolve()) in text
         assert "bootstrap_env.py" in text
         assert "busy_installer.app" in text
+        if os.name != "nt":
+            assert "PYTHON=python3" in text
+            assert "PYTHON=python" in text
 
 
 def test_inspect_and_uninstall_user_commands_track_managed_targets(tmp_path: Path) -> None:

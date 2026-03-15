@@ -75,7 +75,9 @@ targets are managed by this checkout, and `--uninstall` removes only the
 managed wrappers. The installed shims are repo-root-aware, so they still
 bootstrap the correct checkout even after being placed in another directory.
 `--shell` lets the helper print shell-specific PATH guidance for `bash`, `zsh`,
-`fish`, `powershell`, `pwsh`, `cmd`, or `sh`.
+`fish`, `powershell`, `pwsh`, `cmd`, or `sh`. The POSIX shims prefer
+`python3` but fall back to `python` when that is the available Python 3
+entrypoint on the host.
 
 Run tests and the bundled-manifest smoke check from that venv:
 

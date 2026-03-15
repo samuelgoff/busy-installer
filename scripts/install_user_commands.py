@@ -76,11 +76,15 @@ def _shim_content(repo_root: Path, name: str) -> str:
         "#!/usr/bin/env bash\n"
         "set -euo pipefail\n\n"
         f"ROOT_DIR={root}\n\n"
-        'if ! command -v python3 >/dev/null 2>&1; then\n'
-        '  echo "python3 not found. Install Python 3.10+ and rerun." >&2\n'
+        'if command -v python3 >/dev/null 2>&1; then\n'
+        '  PYTHON=python3\n'
+        'elif command -v python >/dev/null 2>&1; then\n'
+        '  PYTHON=python\n'
+        "else\n"
+        '  echo "Python 3 not found. Install Python 3.10+ and rerun." >&2\n'
         '  exit 1\n'
         "fi\n\n"
-        'python3 "${ROOT_DIR}/scripts/bootstrap_env.py"\n'
+        '"${PYTHON}" "${ROOT_DIR}/scripts/bootstrap_env.py"\n'
         'exec "${ROOT_DIR}/.venv/bin/python" -m busy_installer.app "$@"\n'
     )
 

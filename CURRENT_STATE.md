@@ -38,6 +38,9 @@
   - installed user-bin wrappers are now repo-root-aware shims instead of raw
     copies/symlinks, so `pf` / `pillowfort` / `busy` still bootstrap the
     correct checkout after being installed into another directory
+  - POSIX user-bin shims now prefer `python3` but fall back to `python`,
+    matching the more forgiving interpreter discovery already used by the
+    Windows shims
 - The default user-facing path is now maintenance-first:
   - no-arg entrypoints route through `repair`
   - fresh workspaces still complete a full install because `repair` falls back
