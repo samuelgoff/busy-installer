@@ -185,11 +185,15 @@ def _path_contains(bin_dir: Path) -> bool:
 
 def _detect_shell() -> str:
     if os.name == "nt":
-        return "powershell"
+        return _detect_windows_shell()
     raw_shell = Path(os.environ.get("SHELL", "")).name.lower()
     if raw_shell in {"bash", "zsh", "fish"}:
         return raw_shell
     return "sh"
+
+
+def _detect_windows_shell() -> str:
+    return "cmd" if os.environ.get("PROMPT", "").strip() else "powershell"
 
 
 def path_hint_lines(bin_dir: Path, shell: str = "auto") -> list[str]:

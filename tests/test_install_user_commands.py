@@ -5,6 +5,7 @@ from pathlib import Path
 import pytest
 
 from scripts.install_user_commands import (
+    _detect_windows_shell,
     inspect_user_commands,
     install_user_commands,
     path_hint_lines,
@@ -144,3 +145,11 @@ def test_path_hint_lines_are_shell_specific(tmp_path: Path) -> None:
         "Use System Properties > Environment Variables for a persistent cmd PATH update,",
         "or run the PowerShell persistence command shown by --shell powershell.",
     ]
+
+
+def test_detect_windows_shell_prefers_cmd_prompt(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("PROMPT", "$P$G")
+    assert _detect_windows_shell() == "cmd"
+
+    monkeypatch.delenv("PROMPT", raising=False)
+    assert _detect_windows_shell() == "powershell"

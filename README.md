@@ -86,6 +86,8 @@ without leaving a partially installed command set behind. Windows PATH hints
 now avoid the unsafe `setx PATH "%PATH%"` style; `cmd` gets a temporary PATH
 command using quoted `set "PATH=..."` syntax plus an explicit pointer to either
 System Properties or the safer PowerShell persistence command.
+On Windows, `--shell auto` now prefers `cmd` guidance when the helper is run
+from a `cmd.exe` session instead of always defaulting to PowerShell text.
 
 Run tests and the bundled-manifest smoke check from that venv:
 

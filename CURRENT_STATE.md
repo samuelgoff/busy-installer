@@ -48,6 +48,9 @@
     the temporary `cmd` command now also uses quoted `set "PATH=..."` syntax,
     and persistent guidance points operators to either System Properties or the
     safer PowerShell persistence command
+  - On Windows, shell hint auto-detection now prefers `cmd` guidance when the
+    helper is invoked from a `cmd.exe` session instead of always defaulting to
+    PowerShell output
   - generated Windows `.cmd` user-bin shims now quote their internal
     environment-variable assignments, so repo paths with spaces remain safe
   - user-bin install now preflights the full target set before writing any
