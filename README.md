@@ -63,6 +63,8 @@ Run tests and the bundled-manifest smoke check from that venv:
 ```bash
 python -m pytest -q
 python scripts/smoke_manifest.py
+python scripts/release_smoke.py --print-matrix
+python scripts/release_smoke.py --current-platform --skip-bootstrap
 ```
 
 ## Branching
@@ -183,6 +185,15 @@ Management is now installer-owned too:
   runtime, waits for `GET /api/health` on `127.0.0.1:8031`, and only then opens
   the management browser surface
 
+The installer also carries its own plugin-local management UI contract:
+
+- `ui/manifest.json` declares the installer-owned docs/diagnostics sections for
+  the management plane
+- `ui/actions.py` backs the installer debug action exposed at
+  `/api/plugins/{plugin_id}/ui/debug`
+- this keeps the installer visible in the host management UI without depending
+  on fallback rendering
+
 The installer engine supports symlink-first source-of-truth enforcement:
 
 - when source bindings are marked required or `BUSY_INSTALL_STRICT_SOURCE=1` is
@@ -287,3 +298,4 @@ enforce.
 - `docs/installer-manifest.yaml` - manifest example
 - `busy_installer/platform/*` - platform wrappers
 - `tests/` - unit coverage
+- `docs/internal/INSTALLER_RELEASE_SMOKE_MATRIX.md` - manual release-smoke matrix and current-host smoke command
