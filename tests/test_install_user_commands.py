@@ -29,11 +29,11 @@ def test_install_user_commands_installs_public_wrappers(tmp_path: Path) -> None:
 
     for name, target, mode in installed:
         assert target.exists()
-        if os.name != "nt" and mode == "symlink":
-            assert target.is_symlink()
-            assert target.resolve() == (root / name).resolve()
-        else:
-            assert target.read_text(encoding="utf-8") == (root / name).read_text(encoding="utf-8")
+        assert mode == "shim"
+        text = target.read_text(encoding="utf-8")
+        assert str(root.resolve()) in text
+        assert "bootstrap_env.py" in text
+        assert "busy_installer.app" in text
 
 
 def test_inspect_and_uninstall_user_commands_track_managed_targets(tmp_path: Path) -> None:
@@ -45,13 +45,31 @@ def test_inspect_and_uninstall_user_commands_track_managed_targets(tmp_path: Pat
 
     install_user_commands(repo_root=root, bin_dir=bin_dir, force=False)
     installed = inspect_user_commands(repo_root=root, bin_dir=bin_dir)
-    assert all(state in {"managed-symlink", "managed-copy"} for _name, _target, state in installed)
+    assert all(state == "managed-shim" for _name, _target, state in installed)
 
     removed = uninstall_user_commands(repo_root=root, bin_dir=bin_dir)
     assert all(state == "removed" for _name, _target, state in removed)
 
     final = inspect_user_commands(repo_root=root, bin_dir=bin_dir)
     assert all(state == "missing" for _name, _target, state in final)
+
+
+def test_uninstall_also_removes_legacy_managed_symlinks(tmp_path: Path) -> None:
+    if os.name == "nt":
+        return
+
+    root = Path(__file__).resolve().parents[1]
+    bin_dir = tmp_path / "bin"
+    bin_dir.mkdir(parents=True)
+    legacy = bin_dir / "pf"
+    legacy.symlink_to(root / "pf")
+
+    observed = inspect_user_commands(repo_root=root, bin_dir=bin_dir)
+    assert observed[0][2] == "legacy-managed-symlink"
+
+    removed = uninstall_user_commands(repo_root=root, bin_dir=bin_dir)
+    assert removed[0][2] == "removed"
+    assert not legacy.exists()
 
 
 def test_path_hint_lines_are_shell_specific(tmp_path: Path) -> None:

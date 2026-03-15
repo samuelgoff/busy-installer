@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import os
+import shlex
 import shutil
 from pathlib import Path
 
@@ -27,7 +28,72 @@ def _public_commands() -> tuple[str, ...]:
     return POSIX_COMMANDS
 
 
-def _install_one(source: Path, target: Path, *, force: bool) -> str:
+def _shim_content(repo_root: Path, name: str) -> str:
+    normalized_root = repo_root.resolve()
+    if name.endswith(".cmd"):
+        root = str(normalized_root) + "\\"
+        return (
+            "@echo off\n"
+            "setlocal\n\n"
+            f"set ROOT={root}\n"
+            "set BOOTSTRAP=%ROOT%scripts\\bootstrap_env.py\n"
+            "set VENV_PYTHON=%ROOT%.venv\\Scripts\\python.exe\n\n"
+            "where python3 >nul 2>nul\n"
+            "if %errorlevel%==0 (\n"
+            "  set PYTHON=python3\n"
+            ") else (\n"
+            "  where python >nul 2>nul\n"
+            "  if %errorlevel%==0 (\n"
+            "    set PYTHON=python\n"
+            "  ) else (\n"
+            "    echo Python 3 not found. Install Python 3.10+ and rerun. 1>&2\n"
+            "    exit /b 1\n"
+            "  )\n"
+            ")\n\n"
+            "%PYTHON% \"%BOOTSTRAP%\" >nul\n"
+            "\"%VENV_PYTHON%\" -m busy_installer.app %*\n"
+        )
+    if name.endswith(".ps1"):
+        root = str(normalized_root).replace("'", "''")
+        return (
+            '$ErrorActionPreference = "Stop"\n\n'
+            f"$Root = Resolve-Path '{root}'\n"
+            '$VenvPython = Join-Path $Root.Path ".venv\\Scripts\\python.exe"\n'
+            '$Bootstrap = Join-Path $Root.Path "scripts\\bootstrap_env.py"\n\n'
+            '$python = (Get-Command python3 -ErrorAction SilentlyContinue).Source\n'
+            'if (-not $python) {\n'
+            '  $python = (Get-Command python -ErrorAction SilentlyContinue).Source\n'
+            '}\n\n'
+            'if (-not $python) {\n'
+            '  throw "Python 3 not found. Install Python 3.10+ and rerun."\n'
+            '}\n\n'
+            '& $python $Bootstrap\n'
+            '& $VenvPython -m busy_installer.app @args\n'
+        )
+
+    root = shlex.quote(str(normalized_root))
+    return (
+        "#!/usr/bin/env bash\n"
+        "set -euo pipefail\n\n"
+        f"ROOT_DIR={root}\n\n"
+        'if ! command -v python3 >/dev/null 2>&1; then\n'
+        '  echo "python3 not found. Install Python 3.10+ and rerun." >&2\n'
+        '  exit 1\n'
+        "fi\n\n"
+        'python3 "${ROOT_DIR}/scripts/bootstrap_env.py"\n'
+        'exec "${ROOT_DIR}/.venv/bin/python" -m busy_installer.app "$@"\n'
+    )
+
+
+def _legacy_wrapper_content(repo_root: Path, name: str) -> bytes:
+    return (repo_root / name).read_bytes()
+
+
+def _managed_wrapper_bytes(repo_root: Path, name: str) -> bytes:
+    return _shim_content(repo_root, name).encode("utf-8")
+
+
+def _install_one(repo_root: Path, source: Path, target: Path, *, force: bool) -> str:
     if target.exists() or target.is_symlink():
         if not force:
             raise SystemExit(f"target already exists: {target} (use --force to replace it)")
@@ -37,16 +103,10 @@ def _install_one(source: Path, target: Path, *, force: bool) -> str:
             target.unlink()
 
     target.parent.mkdir(parents=True, exist_ok=True)
-
+    target.write_bytes(_managed_wrapper_bytes(repo_root, source.name))
     if os.name != "nt":
-        try:
-            target.symlink_to(source)
-            return "symlink"
-        except OSError:
-            pass
-
-    shutil.copy2(source, target)
-    return "copy"
+        target.chmod(0o755)
+    return "shim"
 
 
 def install_user_commands(*, repo_root: Path, bin_dir: Path, force: bool) -> list[tuple[str, Path, str]]:
@@ -56,7 +116,7 @@ def install_user_commands(*, repo_root: Path, bin_dir: Path, force: bool) -> lis
         if not source.is_file():
             raise SystemExit(f"missing public command wrapper: {source}")
         target = bin_dir / name
-        mode = _install_one(source, target, force=force)
+        mode = _install_one(repo_root, source, target, force=force)
         installed.append((name, target, mode))
     return installed
 
@@ -68,12 +128,18 @@ def inspect_user_commands(*, repo_root: Path, bin_dir: Path) -> list[tuple[str, 
         target = bin_dir / name
         if target.is_symlink():
             try:
-                state = "managed-symlink" if target.resolve() == source.resolve() else "foreign-symlink"
+                state = "legacy-managed-symlink" if target.resolve() == source.resolve() else "foreign-symlink"
             except OSError:
                 state = "broken-symlink"
         elif target.is_file():
             try:
-                state = "managed-copy" if target.read_bytes() == source.read_bytes() else "foreign-file"
+                payload = target.read_bytes()
+                if payload == _managed_wrapper_bytes(repo_root, name):
+                    state = "managed-shim"
+                elif payload == _legacy_wrapper_content(repo_root, name):
+                    state = "legacy-managed-copy"
+                else:
+                    state = "foreign-file"
             except OSError:
                 state = "foreign-file"
         else:
@@ -85,7 +151,7 @@ def inspect_user_commands(*, repo_root: Path, bin_dir: Path) -> list[tuple[str, 
 def uninstall_user_commands(*, repo_root: Path, bin_dir: Path) -> list[tuple[str, Path, str]]:
     removed: list[tuple[str, Path, str]] = []
     for name, target, state in inspect_user_commands(repo_root=repo_root, bin_dir=bin_dir):
-        if state in {"managed-symlink", "managed-copy"}:
+        if state in {"managed-shim", "legacy-managed-symlink", "legacy-managed-copy"}:
             target.unlink()
             removed.append((name, target, "removed"))
             continue

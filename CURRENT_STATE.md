@@ -35,6 +35,9 @@
     avoiding accidental removal of unrelated files in the same bin directory
   - shell-aware PATH hints are now available for `bash`, `zsh`, `fish`,
     PowerShell, and `cmd`
+  - installed user-bin wrappers are now repo-root-aware shims instead of raw
+    copies/symlinks, so `pf` / `pillowfort` / `busy` still bootstrap the
+    correct checkout after being installed into another directory
 - The default user-facing path is now maintenance-first:
   - no-arg entrypoints route through `repair`
   - fresh workspaces still complete a full install because `repair` falls back

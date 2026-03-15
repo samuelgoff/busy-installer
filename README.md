@@ -72,8 +72,10 @@ On POSIX hosts this installs `pf`, `pillowfort`, and `busy` into
 `~/.local/bin` by default. On Windows it installs the matching `.cmd` and
 `.ps1` wrappers into `~/bin` by default. `--status` reports whether those
 targets are managed by this checkout, and `--uninstall` removes only the
-managed wrappers. `--shell` lets the helper print shell-specific PATH guidance
-for `bash`, `zsh`, `fish`, `powershell`, `pwsh`, `cmd`, or `sh`.
+managed wrappers. The installed shims are repo-root-aware, so they still
+bootstrap the correct checkout even after being placed in another directory.
+`--shell` lets the helper print shell-specific PATH guidance for `bash`, `zsh`,
+`fish`, `powershell`, `pwsh`, `cmd`, or `sh`.
 
 Run tests and the bundled-manifest smoke check from that venv:
 
