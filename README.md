@@ -91,7 +91,9 @@ from a `cmd.exe` session instead of always defaulting to PowerShell text.
 Rerunning the installer is now idempotent for already-managed shims, and older
 installer-managed wrapper copies/symlinks are migrated forward to the current
 shim format automatically. Generated POSIX user-bin shims now run under plain
-`/bin/sh` instead of requiring `bash`.
+`/bin/sh` instead of requiring `bash`. Generated Windows `.cmd` shims now also
+fail fast if `.venv` bootstrap fails, instead of continuing into a broken app
+launch.
 
 Run tests and the bundled-manifest smoke check from that venv:
 

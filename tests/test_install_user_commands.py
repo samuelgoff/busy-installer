@@ -46,6 +46,7 @@ def test_install_user_commands_installs_public_wrappers(tmp_path: Path) -> None:
             assert 'set "VENV_PYTHON=' in text
             assert 'set "PYTHON=python3"' in text
             assert 'set "PYTHON=python"' in text
+            assert "if errorlevel 1 exit /b %errorlevel%" in text
 
 
 def test_inspect_and_uninstall_user_commands_track_managed_targets(tmp_path: Path) -> None:

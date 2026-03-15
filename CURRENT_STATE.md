@@ -56,6 +56,9 @@
     the current shim format automatically
   - generated POSIX user-bin shims now run under plain `/bin/sh` instead of
     requiring `bash`
+  - generated Windows `.cmd` user-bin shims now fail fast when
+    `scripts/bootstrap_env.py` fails, instead of continuing into a broken
+    `.venv` launch attempt
   - generated Windows `.cmd` user-bin shims now quote their internal
     environment-variable assignments, so repo paths with spaces remain safe
   - user-bin install now preflights the full target set before writing any

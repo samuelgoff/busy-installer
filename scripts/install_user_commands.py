@@ -51,6 +51,7 @@ def _shim_content(repo_root: Path, name: str) -> str:
             "  )\n"
             ")\n\n"
             "%PYTHON% \"%BOOTSTRAP%\" >nul\n"
+            "if errorlevel 1 exit /b %errorlevel%\n"
             "\"%VENV_PYTHON%\" -m busy_installer.app %*\n"
         )
     if name.endswith(".ps1"):
