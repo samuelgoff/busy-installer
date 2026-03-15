@@ -106,14 +106,47 @@ def _path_contains(bin_dir: Path) -> bool:
     return False
 
 
-def _print_path_hint(bin_dir: Path) -> None:
+def _detect_shell() -> str:
+    if os.name == "nt":
+        return "powershell"
+    raw_shell = Path(os.environ.get("SHELL", "")).name.lower()
+    if raw_shell in {"bash", "zsh", "fish"}:
+        return raw_shell
+    return "sh"
+
+
+def path_hint_lines(bin_dir: Path, shell: str = "auto") -> list[str]:
+    normalized_shell = _detect_shell() if shell == "auto" else shell.lower()
+    path_value = str(bin_dir)
+    if normalized_shell in {"sh", "bash", "zsh"}:
+        return [
+            f'export PATH="{path_value}:$PATH"',
+            f"Add that line to your {'~/.zshrc' if normalized_shell == 'zsh' else 'shell profile'} for persistence.",
+        ]
+    if normalized_shell == "fish":
+        return [
+            f'fish_add_path "{path_value}"',
+            "Add that to config.fish for persistence.",
+        ]
+    if normalized_shell in {"powershell", "pwsh"}:
+        return [
+            f'$env:Path = "{path_value};" + $env:Path',
+            f'[Environment]::SetEnvironmentVariable("Path", "{path_value};" + [Environment]::GetEnvironmentVariable("Path", "User"), "User")',
+        ]
+    if normalized_shell == "cmd":
+        return [
+            f"set PATH={path_value};%PATH%",
+            f'setx PATH "{path_value};%PATH%"',
+        ]
+    return [f"Add {path_value} to your PATH to run pf / pillowfort / busy from any shell."]
+
+
+def _print_path_hint(bin_dir: Path, shell: str) -> None:
     if _path_contains(bin_dir):
         print(f"[command-install] PATH already includes {bin_dir}")
         return
-    if os.name == "nt":
-        print(f"[command-install] Add {bin_dir} to your user PATH to run pf / pillowfort / busy from any shell.")
-        return
-    print(f'[command-install] Add this to your shell profile: export PATH="{bin_dir}:$PATH"')
+    for line in path_hint_lines(bin_dir, shell=shell):
+        print(f"[command-install] {line}")
 
 
 def _parse_args() -> argparse.Namespace:
@@ -128,6 +161,11 @@ def _parse_args() -> argparse.Namespace:
         "--force",
         action="store_true",
         help="replace existing targets in the bin directory",
+    )
+    parser.add_argument(
+        "--shell",
+        default="auto",
+        help="shell hint style for PATH guidance (auto, bash, zsh, fish, powershell, pwsh, cmd, sh)",
     )
     mode = parser.add_mutually_exclusive_group()
     mode.add_argument(
@@ -152,21 +190,21 @@ def main() -> int:
         print(f"[command-install] status for {bin_dir}")
         for name, target, state in inspect_user_commands(repo_root=repo_root, bin_dir=bin_dir):
             print(f"[command-install] {name} -> {target} ({state})")
-        _print_path_hint(bin_dir)
+        _print_path_hint(bin_dir, args.shell)
         return 0
 
     if args.uninstall:
         print(f"[command-install] uninstall from {bin_dir}")
         for name, target, state in uninstall_user_commands(repo_root=repo_root, bin_dir=bin_dir):
             print(f"[command-install] {name} -> {target} ({state})")
-        _print_path_hint(bin_dir)
+        _print_path_hint(bin_dir, args.shell)
         return 0
 
     installed = install_user_commands(repo_root=repo_root, bin_dir=bin_dir, force=args.force)
     print(f"[command-install] installed into {bin_dir}")
     for name, target, mode in installed:
         print(f"[command-install] {name} -> {target} ({mode})")
-    _print_path_hint(bin_dir)
+    _print_path_hint(bin_dir, args.shell)
     return 0
 
 

@@ -65,13 +65,15 @@ install the public wrappers into your user bin directory:
 python3 scripts/install_user_commands.py
 python3 scripts/install_user_commands.py --status
 python3 scripts/install_user_commands.py --uninstall
+python3 scripts/install_user_commands.py --shell zsh
 ```
 
 On POSIX hosts this installs `pf`, `pillowfort`, and `busy` into
 `~/.local/bin` by default. On Windows it installs the matching `.cmd` and
 `.ps1` wrappers into `~/bin` by default. `--status` reports whether those
 targets are managed by this checkout, and `--uninstall` removes only the
-managed wrappers.
+managed wrappers. `--shell` lets the helper print shell-specific PATH guidance
+for `bash`, `zsh`, `fish`, `powershell`, `pwsh`, `cmd`, or `sh`.
 
 Run tests and the bundled-manifest smoke check from that venv:
 
