@@ -73,8 +73,8 @@ def _shim_content(repo_root: Path, name: str) -> str:
 
     root = shlex.quote(str(normalized_root))
     return (
-        "#!/usr/bin/env bash\n"
-        "set -euo pipefail\n\n"
+        "#!/bin/sh\n"
+        "set -eu\n\n"
         f"ROOT_DIR={root}\n\n"
         'if command -v python3 >/dev/null 2>&1; then\n'
         '  PYTHON=python3\n'

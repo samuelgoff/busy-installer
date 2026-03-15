@@ -54,6 +54,8 @@
   - rerunning the user-bin installer is now idempotent for already-managed
     shims, and older installer-managed wrapper copies/symlinks are migrated to
     the current shim format automatically
+  - generated POSIX user-bin shims now run under plain `/bin/sh` instead of
+    requiring `bash`
   - generated Windows `.cmd` user-bin shims now quote their internal
     environment-variable assignments, so repo paths with spaces remain safe
   - user-bin install now preflights the full target set before writing any

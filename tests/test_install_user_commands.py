@@ -37,6 +37,7 @@ def test_install_user_commands_installs_public_wrappers(tmp_path: Path) -> None:
         assert "bootstrap_env.py" in text
         assert "busy_installer.app" in text
         if os.name != "nt":
+            assert text.startswith("#!/bin/sh\nset -eu\n")
             assert "PYTHON=python3" in text
             assert "PYTHON=python" in text
         else:
