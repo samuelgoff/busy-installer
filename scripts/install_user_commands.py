@@ -127,7 +127,7 @@ def _install_one(repo_root: Path, source: Path, target: Path, *, force: bool) ->
 
 
 def install_user_commands(*, repo_root: Path, bin_dir: Path, force: bool) -> list[tuple[str, Path, str]]:
-    planned: list[tuple[str, Path, Path, str]] = []
+    planned: list[tuple[str, Path, Path, str, str]] = []
     for name in _public_commands():
         source = repo_root / name
         if not source.is_file():
@@ -136,15 +136,26 @@ def install_user_commands(*, repo_root: Path, bin_dir: Path, force: bool) -> lis
         state = _target_state(repo_root, source, target)
         if state in {"foreign-file", "foreign-symlink", "broken-symlink", "foreign-directory"}:
             raise SystemExit(f"refusing to replace non-managed target: {target} ({state})")
+        if state == "managed-shim" and not force:
+            planned.append((name, source, target, state, "managed"))
+            continue
+        if state in {"legacy-managed-symlink", "legacy-managed-copy"} and not force:
+            planned.append((name, source, target, state, "migrated-shim"))
+            continue
         if state != "missing" and not force:
             raise SystemExit(f"target already exists: {target} (use --force to replace it)")
-        planned.append((name, source, target, state))
+        planned.append((name, source, target, state, "shim"))
 
     installed: list[tuple[str, Path, str]] = []
-    for name, source, target, state in planned:
+    for name, source, target, state, action in planned:
+        if action == "managed":
+            installed.append((name, target, action))
+            continue
         if state != "missing":
             target.unlink()
         mode = _install_one(repo_root, source, target, force=force)
+        if action == "migrated-shim":
+            mode = action
         installed.append((name, target, mode))
     return installed
 

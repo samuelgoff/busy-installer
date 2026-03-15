@@ -65,6 +65,17 @@ def test_inspect_and_uninstall_user_commands_track_managed_targets(tmp_path: Pat
     assert all(state == "missing" for _name, _target, state in final)
 
 
+def test_install_user_commands_is_idempotent_for_managed_shims(tmp_path: Path) -> None:
+    root = Path(__file__).resolve().parents[1]
+    bin_dir = tmp_path / "bin"
+
+    first = install_user_commands(repo_root=root, bin_dir=bin_dir, force=False)
+    second = install_user_commands(repo_root=root, bin_dir=bin_dir, force=False)
+
+    assert all(mode == "shim" for _name, _target, mode in first)
+    assert all(mode == "managed" for _name, _target, mode in second)
+
+
 def test_uninstall_also_removes_legacy_managed_symlinks(tmp_path: Path) -> None:
     if os.name == "nt":
         return
@@ -81,6 +92,26 @@ def test_uninstall_also_removes_legacy_managed_symlinks(tmp_path: Path) -> None:
     removed = uninstall_user_commands(repo_root=root, bin_dir=bin_dir)
     assert removed[0][2] == "removed"
     assert not legacy.exists()
+
+
+def test_install_user_commands_migrates_legacy_managed_targets(tmp_path: Path) -> None:
+    root = Path(__file__).resolve().parents[1]
+    bin_dir = tmp_path / "bin"
+    bin_dir.mkdir(parents=True)
+
+    if os.name == "nt":
+        legacy_name = "pf.cmd"
+    else:
+        legacy_name = "pf"
+
+    legacy_target = bin_dir / legacy_name
+    legacy_target.write_bytes((root / legacy_name).read_bytes())
+
+    installed = install_user_commands(repo_root=root, bin_dir=bin_dir, force=False)
+
+    assert installed[0][0] == legacy_name
+    assert installed[0][2] == "migrated-shim"
+    assert inspect_user_commands(repo_root=root, bin_dir=bin_dir)[0][2] == "managed-shim"
 
 
 def test_force_refuses_to_replace_foreign_files(tmp_path: Path) -> None:
