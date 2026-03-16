@@ -255,6 +255,12 @@ def test_detect_shell_prefers_posix_shells_on_windows(monkeypatch: pytest.Monkey
     assert _detect_shell(os_name="nt", shell_value=r"C:\Program Files\Git\bin\bash.exe") == "bash"
 
 
+def test_detect_shell_recognizes_powershell_from_shell_value() -> None:
+    assert _detect_shell(os_name="posix", shell_value="/usr/local/bin/pwsh") == "pwsh"
+    assert _detect_shell(os_name="nt", shell_value=r"C:\Program Files\PowerShell\7\pwsh.exe") == "pwsh"
+    assert _detect_shell(os_name="nt", shell_value=r"C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe") == "powershell"
+
+
 def test_main_normalizes_relative_bin_dir_in_output(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,

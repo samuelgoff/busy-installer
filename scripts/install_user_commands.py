@@ -252,7 +252,7 @@ def _path_contains(bin_dir: Path) -> bool:
 
 def _detect_shell(*, os_name: str | None = None, shell_value: str | None = None) -> str:
     raw_shell = _shell_name(os.environ.get("SHELL", "") if shell_value is None else shell_value)
-    if raw_shell in {"bash", "zsh", "fish", "sh"}:
+    if raw_shell in {"bash", "zsh", "fish", "sh", "pwsh", "powershell"}:
         return raw_shell
     if (os.name if os_name is None else os_name) == "nt":
         return _detect_windows_shell()
