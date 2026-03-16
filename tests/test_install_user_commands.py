@@ -327,6 +327,10 @@ def test_status_summary_describes_empty_managed_and_mixed_states(tmp_path: Path)
     assert _status_summary([("pf", target, "missing")]) == "no managed commands installed"
     assert _status_summary([("pf", target, "managed-shim")]) == "managed commands installed"
     assert _status_summary([("pf", target, "legacy-managed-copy")]) == "managed commands installed"
+    assert _status_summary([
+        ("pf", target, "managed-shim"),
+        ("busy", target, "missing"),
+    ]) == "partial managed commands installed"
     assert _status_summary([("pf", target, "foreign-file")]) == "unmanaged commands present"
     assert _status_summary([
         ("pf", target, "managed-shim"),
@@ -467,3 +471,25 @@ def test_main_status_with_legacy_targets_reports_managed_summary(
 
     output = capsys.readouterr().out
     assert "managed commands installed" in output
+
+
+def test_main_status_with_partial_targets_reports_partial_summary(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    root = Path(__file__).resolve().parents[1]
+    bin_dir = tmp_path / "tmp-relative-bin"
+    bin_dir.mkdir(parents=True)
+    (bin_dir / "pf").write_text((root / "pf").read_text(encoding="utf-8"), encoding="utf-8")
+
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr(
+        "sys.argv",
+        ["install_user_commands.py", "--status", "--bin-dir", "tmp-relative-bin"],
+    )
+
+    assert main() == 0
+
+    output = capsys.readouterr().out
+    assert "partial managed commands installed" in output

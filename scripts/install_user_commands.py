@@ -295,6 +295,8 @@ def _status_summary(observed: list[tuple[str, Path, str]]) -> str:
         return "no managed commands installed"
     if states <= managed_states:
         return "managed commands installed"
+    if _has_managed_targets(observed) and states <= managed_states | {"missing"}:
+        return "partial managed commands installed"
     if states and states <= {"foreign-file", "foreign-symlink", "broken-symlink", "foreign-directory"}:
         return "unmanaged commands present"
     if _has_managed_targets(observed):

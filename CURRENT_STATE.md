@@ -86,8 +86,9 @@
     forced rewrites of already-managed shims
   - status output now only prints PATH setup guidance when managed commands
     are actually present in the target bin directory, and it now includes a
-    one-line summary for empty, healthy, unmanaged, and mixed states; legacy
-    installer-managed wrappers now count as healthy for that summary
+    one-line summary for empty, healthy, partial, unmanaged, and mixed
+    states; legacy installer-managed wrappers now count as healthy for that
+    summary
   - wrapper writes now use same-directory atomic replace so interrupted writes
     do not leave partially written shims at the final command paths
   - uninstall output no longer prints PATH setup guidance after reporting
