@@ -77,6 +77,9 @@ def _shim_content(repo_root: Path, name: str) -> str:
             '  exit $LASTEXITCODE\n'
             '}\n'
             '& $VenvPython -m busy_installer.app @args\n'
+            'if ($LASTEXITCODE -ne 0) {\n'
+            '  exit $LASTEXITCODE\n'
+            '}\n'
         )
 
     root = shlex.quote(str(normalized_root))

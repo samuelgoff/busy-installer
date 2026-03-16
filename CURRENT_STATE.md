@@ -62,6 +62,8 @@
   - generated PowerShell user-bin shims now also fail fast when
     `scripts/bootstrap_env.py` fails, instead of continuing into a broken
     `.venv` launch attempt
+  - generated PowerShell user-bin shims now also propagate non-zero app exits
+    explicitly instead of relying on host-default shell behavior
   - printed POSIX PATH-hint commands now use shell-safe quoting, so copy-paste
     guidance stays correct even when the target bin path contains expansion
     characters like `$`
