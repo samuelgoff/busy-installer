@@ -54,6 +54,7 @@ def test_install_user_commands_installs_public_wrappers(tmp_path: Path) -> None:
             assert 'set "VENV_PYTHON=' in text
             assert 'set "PYTHON=python3"' in text
             assert 'set "PYTHON=python"' in text
+            assert "setlocal DisableDelayedExpansion" in text
             assert "if errorlevel 1 exit /b %errorlevel%" in text
             assert text.count("if ($LASTEXITCODE -ne 0)") == 2
 
@@ -210,11 +211,13 @@ def test_path_hint_lines_are_shell_specific(tmp_path: Path) -> None:
         "Add that line to $PROFILE for persistence.",
     ]
     assert path_hint_lines(windows_bin_dir, shell="cmd") == [
+        "setlocal DisableDelayedExpansion",
         f'set "PATH={windows_bin_dir};%PATH%"',
         "Use System Properties > Environment Variables for a persistent cmd PATH update,",
         "or run the PowerShell persistence command shown by --shell powershell.",
     ]
     assert path_hint_lines(windows_percent_bin_dir, shell="cmd") == [
+        "setlocal DisableDelayedExpansion",
         f'set "PATH={_cmd_escape(str(windows_percent_bin_dir))};%PATH%"',
         "Use System Properties > Environment Variables for a persistent cmd PATH update,",
         "or run the PowerShell persistence command shown by --shell powershell.",
@@ -231,6 +234,14 @@ def test_cmd_shim_escapes_percent_signs_in_repo_path() -> None:
     percent_shim = _shim_content(percent_repo, "pf.cmd")
     expected_percent = _cmd_escape(str(percent_repo.resolve()) + "\\")
     assert f'set "ROOT={expected_percent}"' in percent_shim
+
+
+def test_cmd_hint_and_shim_disable_delayed_expansion_for_bang_paths() -> None:
+    assert path_hint_lines(Path("/tmp/bin ! tools"), shell="cmd")[0] == "setlocal DisableDelayedExpansion"
+
+    shim = _shim_content(Path("/tmp/repo ! root"), "pf.cmd")
+    assert "setlocal DisableDelayedExpansion" in shim
+    assert 'set "ROOT=' in shim
 
 
 def test_powershell_shim_uses_literal_root_resolution() -> None:

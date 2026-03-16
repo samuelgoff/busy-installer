@@ -49,7 +49,8 @@
     and persistent guidance points operators to either System Properties or the
     safer PowerShell persistence command; literal `%` characters are now
     escaped correctly in both the printed `cmd` PATH hint and the generated
-    `.cmd` shim paths
+    `.cmd` shim paths, and both now disable delayed expansion first so paths
+    containing `!` stay literal too
   - shell hint auto-detection now respects supported explicit `SHELL` values
     including Git Bash/MSYS2 and PowerShell Core (`pwsh`) instead of
     collapsing them into generic platform fallbacks; on Windows it otherwise

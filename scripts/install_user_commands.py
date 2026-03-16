@@ -65,7 +65,7 @@ def _shim_content(repo_root: Path, name: str) -> str:
         root = _cmd_escape(str(normalized_root) + "\\")
         return (
             "@echo off\n"
-            "setlocal\n\n"
+            "setlocal DisableDelayedExpansion\n\n"
             f'set "ROOT={root}"\n'
             'set "BOOTSTRAP=%ROOT%scripts\\bootstrap_env.py"\n'
             'set "VENV_PYTHON=%ROOT%.venv\\Scripts\\python.exe"\n\n'
@@ -300,6 +300,7 @@ def path_hint_lines(bin_dir: Path, shell: str = "auto", *, os_name: str | None =
     if normalized_shell == "cmd":
         escaped_path = _cmd_escape(path_value)
         return [
+            "setlocal DisableDelayedExpansion",
             f'set "PATH={escaped_path};%PATH%"',
             "Use System Properties > Environment Variables for a persistent cmd PATH update,",
             "or run the PowerShell persistence command shown by --shell powershell.",

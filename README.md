@@ -87,7 +87,8 @@ now avoid the unsafe `setx PATH "%PATH%"` style; `cmd` gets a temporary PATH
 command using quoted `set "PATH=..."` syntax plus an explicit pointer to either
 System Properties or the safer PowerShell persistence command. That `cmd`
 output now also escapes literal `%` characters correctly, and generated `.cmd`
-shims do the same for repo paths containing `%`.
+shims do the same for repo paths containing `%`. Both now also disable delayed
+expansion first, so paths containing `!` stay literal in `cmd.exe`.
 When `SHELL` is set, `--shell auto` now respects supported explicit shells
 including Git Bash/MSYS2 and PowerShell Core (`pwsh`) instead of collapsing
 them into generic platform fallbacks. On Windows it otherwise prefers `cmd`
