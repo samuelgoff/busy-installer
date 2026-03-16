@@ -290,9 +290,10 @@ def _has_managed_targets(observed: list[tuple[str, Path, str]]) -> bool:
 
 def _status_summary(observed: list[tuple[str, Path, str]]) -> str:
     states = {state for _name, _target, state in observed}
+    managed_states = {"managed-shim", "legacy-managed-symlink", "legacy-managed-copy"}
     if states == {"missing"}:
         return "no managed commands installed"
-    if states <= {"managed-shim"}:
+    if states <= managed_states:
         return "managed commands installed"
     if states and states <= {"foreign-file", "foreign-symlink", "broken-symlink", "foreign-directory"}:
         return "unmanaged commands present"

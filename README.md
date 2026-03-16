@@ -115,7 +115,8 @@ update/migration or forced rewrite passes report `reconciled in`.
 Status output now only prints PATH setup guidance when managed commands are
 actually present in the target bin directory, and it now includes a one-line
 summary so empty, healthy, unmanaged, and mixed states are obvious before the
-per-command rows.
+per-command rows. Legacy installer-managed wrappers now count as healthy for
+that summary instead of being lumped into the mixed state.
 Wrapper writes now land via same-directory atomic replace, so an interrupted
 install cannot leave a partially written shim at the final command path.
 The uninstall path now reports only removal status; it no longer prints PATH
