@@ -158,14 +158,15 @@ def test_foreign_target_preflight_prevents_partial_install(tmp_path: Path) -> No
 
 def test_path_hint_lines_are_shell_specific(tmp_path: Path) -> None:
     bin_dir = tmp_path / "bin"
+    posix_bin_dir = tmp_path / "bin $ tools"
     windows_bin_dir = tmp_path / "bin & tools"
 
-    assert path_hint_lines(bin_dir, shell="zsh") == [
-        f'export PATH="{bin_dir}:$PATH"',
+    assert path_hint_lines(posix_bin_dir, shell="zsh") == [
+        f"export PATH='{posix_bin_dir}':\"$PATH\"",
         "Add that line to your ~/.zshrc for persistence.",
     ]
-    assert path_hint_lines(bin_dir, shell="fish") == [
-        f'fish_add_path "{bin_dir}"',
+    assert path_hint_lines(posix_bin_dir, shell="fish") == [
+        f"fish_add_path '{posix_bin_dir}'",
         "Add that to config.fish for persistence.",
     ]
     assert path_hint_lines(bin_dir, shell="powershell") == [

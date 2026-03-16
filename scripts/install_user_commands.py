@@ -212,13 +212,15 @@ def path_hint_lines(bin_dir: Path, shell: str = "auto") -> list[str]:
     normalized_shell = _detect_shell() if shell == "auto" else shell.lower()
     path_value = str(bin_dir)
     if normalized_shell in {"sh", "bash", "zsh"}:
+        quoted_path = shlex.quote(path_value)
         return [
-            f'export PATH="{path_value}:$PATH"',
+            f'export PATH={quoted_path}:"$PATH"',
             f"Add that line to your {'~/.zshrc' if normalized_shell == 'zsh' else 'shell profile'} for persistence.",
         ]
     if normalized_shell == "fish":
+        quoted_path = shlex.quote(path_value)
         return [
-            f'fish_add_path "{path_value}"',
+            f"fish_add_path {quoted_path}",
             "Add that to config.fish for persistence.",
         ]
     if normalized_shell in {"powershell", "pwsh"}:
