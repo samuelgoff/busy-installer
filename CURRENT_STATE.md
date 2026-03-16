@@ -53,9 +53,11 @@
     containing `!` stay literal too
   - shell hint auto-detection now respects supported explicit `SHELL` values
     including Git Bash/MSYS2 and PowerShell Core (`pwsh`) instead of
-    collapsing them into generic platform fallbacks; on Windows it otherwise
-    prefers `cmd` guidance when the helper is invoked from a `cmd.exe`
-    session instead of always defaulting to PowerShell output
+    collapsing them into generic platform fallbacks; explicit `cmd.exe` values
+    now also stay authoritative on Windows instead of falling back to the
+    PROMPT heuristic. On Windows it otherwise prefers `cmd` guidance when the
+    helper is invoked from a `cmd.exe` session instead of always defaulting to
+    PowerShell output
   - rerunning the user-bin installer is now idempotent for already-managed
     shims, and older installer-managed wrapper copies/symlinks are migrated to
     the current shim format automatically

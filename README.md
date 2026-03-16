@@ -91,9 +91,10 @@ shims do the same for repo paths containing `%`. Both now also disable delayed
 expansion first, so paths containing `!` stay literal in `cmd.exe`.
 When `SHELL` is set, `--shell auto` now respects supported explicit shells
 including Git Bash/MSYS2 and PowerShell Core (`pwsh`) instead of collapsing
-them into generic platform fallbacks. On Windows it otherwise prefers `cmd`
-guidance when the helper is run from a `cmd.exe` session instead of always
-defaulting to PowerShell text.
+them into generic platform fallbacks. Explicit `cmd.exe` shell values now also
+stay authoritative on Windows instead of falling back to the PROMPT heuristic.
+On Windows it otherwise prefers `cmd` guidance when the helper is run from a
+`cmd.exe` session instead of always defaulting to PowerShell text.
 Rerunning the installer is now idempotent for already-managed shims, and older
 installer-managed wrapper copies/symlinks are migrated forward to the current
 shim format automatically. Generated POSIX user-bin shims now run under plain
