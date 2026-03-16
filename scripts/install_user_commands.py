@@ -288,6 +288,17 @@ def _has_managed_targets(observed: list[tuple[str, Path, str]]) -> bool:
     return any(state in managed_states for _name, _target, state in observed)
 
 
+def _status_summary(observed: list[tuple[str, Path, str]]) -> str:
+    states = {state for _name, _target, state in observed}
+    if states == {"missing"}:
+        return "no managed commands installed"
+    if states <= {"managed-shim"}:
+        return "managed commands installed"
+    if _has_managed_targets(observed):
+        return "mixed command state detected"
+    return "no managed commands installed"
+
+
 def _install_summary_verb(installed: list[tuple[str, Path, str]]) -> str:
     modes = {mode for _name, _target, mode in installed}
     if modes == {"managed"}:
@@ -338,6 +349,7 @@ def main() -> int:
     if args.status:
         observed = inspect_user_commands(repo_root=repo_root, bin_dir=bin_dir)
         print(f"[command-install] status for {bin_dir}")
+        print(f"[command-install] {_status_summary(observed)}")
         for name, target, state in observed:
             print(f"[command-install] {name} -> {target} ({state})")
         if _has_managed_targets(observed):

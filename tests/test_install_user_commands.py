@@ -6,6 +6,7 @@ import pytest
 
 from scripts.install_user_commands import (
     _has_managed_targets,
+    _status_summary,
     main,
     _detect_windows_shell,
     _install_summary_verb,
@@ -320,6 +321,17 @@ def test_has_managed_targets_only_matches_managed_states(tmp_path: Path) -> None
     assert _has_managed_targets([("pf", target, "foreign-file")]) is False
 
 
+def test_status_summary_describes_empty_managed_and_mixed_states(tmp_path: Path) -> None:
+    target = tmp_path / "bin" / "pf"
+
+    assert _status_summary([("pf", target, "missing")]) == "no managed commands installed"
+    assert _status_summary([("pf", target, "managed-shim")]) == "managed commands installed"
+    assert _status_summary([
+        ("pf", target, "managed-shim"),
+        ("busy", target, "foreign-file"),
+    ]) == "mixed command state detected"
+
+
 def test_main_rerun_reports_already_installed_heading(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -379,6 +391,30 @@ def test_main_status_without_managed_targets_skips_path_hints(
 
     output = capsys.readouterr().out
     assert "status for" in output
+    assert "no managed commands installed" in output
     assert "export PATH=" not in output
     assert "fish_add_path" not in output
     assert "PowerShell persistence" not in output
+
+
+def test_main_status_with_managed_targets_reports_managed_summary(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr(
+        "sys.argv",
+        ["install_user_commands.py", "--bin-dir", "tmp-relative-bin"],
+    )
+    assert main() == 0
+    capsys.readouterr()
+
+    monkeypatch.setattr(
+        "sys.argv",
+        ["install_user_commands.py", "--status", "--bin-dir", "tmp-relative-bin"],
+    )
+    assert main() == 0
+
+    output = capsys.readouterr().out
+    assert "managed commands installed" in output
