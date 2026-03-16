@@ -89,7 +89,7 @@ def _shim_content(repo_root: Path, name: str) -> str:
         root = str(normalized_root).replace("'", "''")
         return (
             '$ErrorActionPreference = "Stop"\n\n'
-            f"$Root = Resolve-Path '{root}'\n"
+            f"$Root = Resolve-Path -LiteralPath '{root}'\n"
             '$VenvPython = Join-Path $Root.Path ".venv\\Scripts\\python.exe"\n'
             '$Bootstrap = Join-Path $Root.Path "scripts\\bootstrap_env.py"\n\n'
             '$python = (Get-Command python3 -ErrorAction SilentlyContinue).Source\n'

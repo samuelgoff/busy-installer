@@ -67,6 +67,9 @@
     `.venv` launch attempt
   - generated PowerShell user-bin shims now also propagate non-zero app exits
     explicitly instead of relying on host-default shell behavior
+  - generated PowerShell user-bin shims now also resolve the repo root via
+    `Resolve-Path -LiteralPath`, so checkout paths containing wildcard
+    characters like `[` or `*` do not get misparsed as glob patterns
   - printed POSIX PATH-hint commands now use shell-safe quoting, so copy-paste
     guidance stays correct even when the target bin path contains expansion
     characters like `$`

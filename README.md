@@ -106,7 +106,9 @@ Printed PowerShell PATH hints now also use literal-safe quoting, so Windows
 copy-paste guidance stays correct for paths containing `$` or single quotes.
 Generated PowerShell installed-command shims now also fail fast if bootstrap
 fails, instead of continuing into a broken venv launch, and they now preserve
-non-zero app exits explicitly too.
+non-zero app exits explicitly too. They now also resolve the repo root with
+PowerShell literal-path semantics, so checkout paths containing wildcard
+characters like `[` or `*` do not get misparsed as glob patterns.
 The `--shell` flag now also fails fast on unknown shell names instead of
 quietly falling back to generic output.
 The underlying Python helper functions now normalize relative `bin_dir` values

@@ -229,6 +229,14 @@ def test_cmd_shim_escapes_percent_signs_in_repo_path() -> None:
     assert f'set "ROOT={expected_percent}"' in percent_shim
 
 
+def test_powershell_shim_uses_literal_root_resolution() -> None:
+    repo_root = Path("/tmp/repo [wild]* root")
+    shim = _shim_content(repo_root, "pf.ps1")
+    expected_root = str(repo_root.resolve()).replace("'", "''")
+
+    assert f"$Root = Resolve-Path -LiteralPath '{expected_root}'" in shim
+
+
 def test_path_hint_lines_reject_unknown_shell_name(tmp_path: Path) -> None:
     with pytest.raises(ValueError, match="unsupported shell hint style: bogus-shell"):
         path_hint_lines(tmp_path / "bin", shell="bogus-shell")
