@@ -107,6 +107,9 @@ The `--shell` flag now also fails fast on unknown shell names instead of
 quietly falling back to generic output.
 The underlying Python helper functions now normalize relative `bin_dir` values
 too, so programmatic callers get the same absolute-path behavior as the CLI.
+Install output now also reflects what actually happened: fresh installs report
+`installed into`, fully managed reruns report `already installed in`, and mixed
+update/migration passes report `reconciled in`.
 The uninstall path now reports only removal status; it no longer prints PATH
 setup guidance afterward.
 

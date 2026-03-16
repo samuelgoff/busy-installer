@@ -7,6 +7,7 @@ import pytest
 from scripts.install_user_commands import (
     main,
     _detect_windows_shell,
+    _install_summary_verb,
     _powershell_quote,
     inspect_user_commands,
     install_user_commands,
@@ -268,3 +269,35 @@ def test_main_rejects_unknown_shell_name(
     error = capsys.readouterr().err
     assert "invalid choice" in error
     assert "bogus-shell" in error
+
+
+def test_install_summary_verb_matches_install_modes(tmp_path: Path) -> None:
+    target = tmp_path / "bin" / "pf"
+
+    assert _install_summary_verb([("pf", target, "shim")]) == "installed into"
+    assert _install_summary_verb([("pf", target, "managed")]) == "already installed in"
+    assert _install_summary_verb([
+        ("pf", target, "managed"),
+        ("pillowfort", target, "shim"),
+    ]) == "reconciled in"
+    assert _install_summary_verb([("pf", target, "migrated-shim")]) == "reconciled in"
+
+
+def test_main_rerun_reports_already_installed_heading(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr(
+        "sys.argv",
+        ["install_user_commands.py", "--bin-dir", "tmp-relative-bin"],
+    )
+
+    assert main() == 0
+    capsys.readouterr()
+    assert main() == 0
+
+    output = capsys.readouterr().out
+    expected = str((tmp_path / "tmp-relative-bin").resolve())
+    assert f"already installed in {expected}" in output

@@ -265,6 +265,15 @@ def _print_path_hint(bin_dir: Path, shell: str) -> None:
         print(f"[command-install] {line}")
 
 
+def _install_summary_verb(installed: list[tuple[str, Path, str]]) -> str:
+    modes = {mode for _name, _target, mode in installed}
+    if modes == {"managed"}:
+        return "already installed in"
+    if "migrated-shim" in modes or "managed" in modes:
+        return "reconciled in"
+    return "installed into"
+
+
 def _parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Install pf / pillowfort / busy into a user bin directory")
     parser.add_argument(
@@ -317,7 +326,7 @@ def main() -> int:
         return 0
 
     installed = install_user_commands(repo_root=repo_root, bin_dir=bin_dir, force=args.force)
-    print(f"[command-install] installed into {bin_dir}")
+    print(f"[command-install] {_install_summary_verb(installed)} {bin_dir}")
     for name, target, mode in installed:
         print(f"[command-install] {name} -> {target} ({mode})")
     _print_path_hint(bin_dir, args.shell)

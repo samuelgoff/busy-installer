@@ -78,6 +78,9 @@
   - the underlying Python helper functions now normalize relative `bin_dir`
     values too, so programmatic callers get the same absolute-path behavior as
     the CLI entrypoint
+  - install output headings now reflect actual state transitions instead of
+    always claiming a fresh install:
+    `installed into`, `already installed in`, or `reconciled in`
   - uninstall output no longer prints PATH setup guidance after reporting
     removal status
   - generated Windows `.cmd` user-bin shims now quote their internal
