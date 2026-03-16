@@ -47,7 +47,9 @@
   - Windows PATH hint output now avoids the unsafe `setx PATH "%PATH%"` style;
     the temporary `cmd` command now also uses quoted `set "PATH=..."` syntax,
     and persistent guidance points operators to either System Properties or the
-    safer PowerShell persistence command
+    safer PowerShell persistence command; literal `%` characters are now
+    escaped correctly in both the printed `cmd` PATH hint and the generated
+    `.cmd` shim paths
   - On Windows, shell hint auto-detection now prefers `cmd` guidance when the
     helper is invoked from a `cmd.exe` session instead of always defaulting to
     PowerShell output

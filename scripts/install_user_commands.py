@@ -44,10 +44,14 @@ def _public_commands() -> tuple[str, ...]:
     return POSIX_COMMANDS
 
 
+def _cmd_escape(value: str) -> str:
+    return value.replace("%", "%%")
+
+
 def _shim_content(repo_root: Path, name: str) -> str:
     normalized_root = repo_root.resolve()
     if name.endswith(".cmd"):
-        root = str(normalized_root) + "\\"
+        root = _cmd_escape(str(normalized_root) + "\\")
         return (
             "@echo off\n"
             "setlocal\n\n"
@@ -277,8 +281,9 @@ def path_hint_lines(bin_dir: Path, shell: str = "auto") -> list[str]:
             f"if (($userPath -split ';') -notcontains {quoted_path}) " + "{ [Environment]::SetEnvironmentVariable(\"Path\", (" + quoted_path + " + ';' + $userPath).TrimEnd(';'), \"User\") }",
         ]
     if normalized_shell == "cmd":
+        escaped_path = _cmd_escape(path_value)
         return [
-            f'set "PATH={path_value};%PATH%"',
+            f'set "PATH={escaped_path};%PATH%"',
             "Use System Properties > Environment Variables for a persistent cmd PATH update,",
             "or run the PowerShell persistence command shown by --shell powershell.",
         ]

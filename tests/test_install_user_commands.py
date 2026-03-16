@@ -5,12 +5,14 @@ from pathlib import Path
 import pytest
 
 from scripts.install_user_commands import (
+    _cmd_escape,
     _has_managed_targets,
     _status_summary,
     main,
     _detect_windows_shell,
     _install_summary_verb,
     _powershell_quote,
+    _shim_content,
     inspect_user_commands,
     install_user_commands,
     path_hint_lines,
@@ -186,6 +188,7 @@ def test_path_hint_lines_are_shell_specific(tmp_path: Path) -> None:
     bin_dir = tmp_path / "bin"
     posix_bin_dir = tmp_path / "bin $ tools"
     windows_bin_dir = tmp_path / "bin & tools"
+    windows_percent_bin_dir = tmp_path / "bin % tools"
     powershell_bin_dir = tmp_path / "bin $ tools's"
 
     assert path_hint_lines(posix_bin_dir, shell="zsh") == [
@@ -206,6 +209,23 @@ def test_path_hint_lines_are_shell_specific(tmp_path: Path) -> None:
         "Use System Properties > Environment Variables for a persistent cmd PATH update,",
         "or run the PowerShell persistence command shown by --shell powershell.",
     ]
+    assert path_hint_lines(windows_percent_bin_dir, shell="cmd") == [
+        f'set "PATH={_cmd_escape(str(windows_percent_bin_dir))};%PATH%"',
+        "Use System Properties > Environment Variables for a persistent cmd PATH update,",
+        "or run the PowerShell persistence command shown by --shell powershell.",
+    ]
+
+
+def test_cmd_shim_escapes_percent_signs_in_repo_path() -> None:
+    spaced_repo = Path("/tmp/repo % root")
+    shim = _shim_content(spaced_repo, "pf.cmd")
+    expected_spaced = _cmd_escape(str(spaced_repo.resolve()) + "\\")
+    assert f'set "ROOT={expected_spaced}"' in shim
+
+    percent_repo = Path("/tmp/repo %value% root")
+    percent_shim = _shim_content(percent_repo, "pf.cmd")
+    expected_percent = _cmd_escape(str(percent_repo.resolve()) + "\\")
+    assert f'set "ROOT={expected_percent}"' in percent_shim
 
 
 def test_path_hint_lines_reject_unknown_shell_name(tmp_path: Path) -> None:

@@ -85,7 +85,9 @@ whole target set before writing anything, so a foreign target fails closed
 without leaving a partially installed command set behind. Windows PATH hints
 now avoid the unsafe `setx PATH "%PATH%"` style; `cmd` gets a temporary PATH
 command using quoted `set "PATH=..."` syntax plus an explicit pointer to either
-System Properties or the safer PowerShell persistence command.
+System Properties or the safer PowerShell persistence command. That `cmd`
+output now also escapes literal `%` characters correctly, and generated `.cmd`
+shims do the same for repo paths containing `%`.
 On Windows, `--shell auto` now prefers `cmd` guidance when the helper is run
 from a `cmd.exe` session instead of always defaulting to PowerShell text.
 Rerunning the installer is now idempotent for already-managed shims, and older
