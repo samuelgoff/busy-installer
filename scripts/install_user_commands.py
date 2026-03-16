@@ -25,7 +25,10 @@ def _default_bin_dir() -> Path:
 
 
 def _normalize_bin_dir(bin_dir: Path) -> Path:
-    return bin_dir.expanduser().resolve()
+    normalized = bin_dir.expanduser().resolve()
+    if normalized.exists() and not normalized.is_dir():
+        raise SystemExit(f"bin directory is not a directory: {normalized}")
+    return normalized
 
 
 def _public_commands() -> tuple[str, ...]:

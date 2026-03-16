@@ -257,6 +257,21 @@ def test_helper_functions_normalize_relative_bin_dir(
     assert all(target.parent == expected_prefix for _name, target, _state in removed)
 
 
+def test_helper_functions_reject_file_bin_dir(tmp_path: Path) -> None:
+    root = Path(__file__).resolve().parents[1]
+    file_target = tmp_path / "not-a-directory"
+    file_target.write_text("foreign", encoding="utf-8")
+
+    with pytest.raises(SystemExit, match="bin directory is not a directory"):
+        install_user_commands(repo_root=root, bin_dir=file_target, force=False)
+
+    with pytest.raises(SystemExit, match="bin directory is not a directory"):
+        inspect_user_commands(repo_root=root, bin_dir=file_target)
+
+    with pytest.raises(SystemExit, match="bin directory is not a directory"):
+        uninstall_user_commands(repo_root=root, bin_dir=file_target)
+
+
 def test_main_uninstall_does_not_print_path_hints(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -296,6 +311,21 @@ def test_main_rejects_unknown_shell_name(
     error = capsys.readouterr().err
     assert "invalid choice" in error
     assert "bogus-shell" in error
+
+
+def test_main_status_rejects_file_bin_dir(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    file_target = tmp_path / "not-a-directory"
+    file_target.write_text("foreign", encoding="utf-8")
+    monkeypatch.setattr(
+        "sys.argv",
+        ["install_user_commands.py", "--status", "--bin-dir", str(file_target)],
+    )
+
+    with pytest.raises(SystemExit, match="bin directory is not a directory"):
+        main()
 
 
 def test_install_summary_verb_matches_install_modes(tmp_path: Path) -> None:
