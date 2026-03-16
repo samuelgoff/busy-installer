@@ -328,6 +328,44 @@ def test_main_status_rejects_file_bin_dir(
         main()
 
 
+def test_helper_functions_reject_broken_symlink_bin_dir(tmp_path: Path) -> None:
+    if os.name == "nt":
+        return
+
+    root = Path(__file__).resolve().parents[1]
+    link_target = tmp_path / "missing-target"
+    link_path = tmp_path / "bin-link"
+    link_path.symlink_to(link_target)
+
+    with pytest.raises(SystemExit, match="bin directory is not a directory"):
+        install_user_commands(repo_root=root, bin_dir=link_path, force=False)
+
+    with pytest.raises(SystemExit, match="bin directory is not a directory"):
+        inspect_user_commands(repo_root=root, bin_dir=link_path)
+
+    with pytest.raises(SystemExit, match="bin directory is not a directory"):
+        uninstall_user_commands(repo_root=root, bin_dir=link_path)
+
+
+def test_main_status_rejects_broken_symlink_bin_dir(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    if os.name == "nt":
+        return
+
+    link_target = tmp_path / "missing-target"
+    link_path = tmp_path / "bin-link"
+    link_path.symlink_to(link_target)
+    monkeypatch.setattr(
+        "sys.argv",
+        ["install_user_commands.py", "--status", "--bin-dir", str(link_path)],
+    )
+
+    with pytest.raises(SystemExit, match="bin directory is not a directory"):
+        main()
+
+
 def test_install_summary_verb_matches_install_modes(tmp_path: Path) -> None:
     target = tmp_path / "bin" / "pf"
 

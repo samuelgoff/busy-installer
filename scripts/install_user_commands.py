@@ -25,9 +25,10 @@ def _default_bin_dir() -> Path:
 
 
 def _normalize_bin_dir(bin_dir: Path) -> Path:
-    normalized = bin_dir.expanduser().resolve()
-    if normalized.exists() and not normalized.is_dir():
-        raise SystemExit(f"bin directory is not a directory: {normalized}")
+    expanded = bin_dir.expanduser()
+    if (expanded.exists() or expanded.is_symlink()) and not expanded.is_dir():
+        raise SystemExit(f"bin directory is not a directory: {expanded.resolve(strict=False)}")
+    normalized = expanded.resolve()
     return normalized
 
 
