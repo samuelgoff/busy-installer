@@ -1,4 +1,4 @@
-"""Pillowfort installer package."""
+"""PillowFort installer package."""
 
 from .core import config, runner, state
 

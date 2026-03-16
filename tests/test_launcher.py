@@ -596,7 +596,7 @@ def test_run_prints_high_signal_recovery_on_failure(
 
     output = capsys.readouterr().out
     assert exit_code == 4
-    assert "[pillowfort] Install failed: boom" in output
+    assert "[PillowFort] Install failed: boom" in output
     assert "Recovery: pf --workspace" in output
     assert "Log:" in output
 

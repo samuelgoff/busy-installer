@@ -14,7 +14,7 @@ def _default_manifest() -> Path:
 
 
 def make_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Pillowfort installer")
+    parser = argparse.ArgumentParser(description="PillowFort installer")
     parser.add_argument(
         "command",
         nargs="?",

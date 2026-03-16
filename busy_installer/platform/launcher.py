@@ -382,7 +382,7 @@ def build_installer_command(config: LauncherConfig) -> list[str]:
 
 
 def _user_message(message: str) -> None:
-    print(f"[pillowfort] {message}")
+    print(f"[PillowFort] {message}")
 
 
 def _recovery_command(config: LauncherConfig) -> str:

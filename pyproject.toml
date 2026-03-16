@@ -1,7 +1,7 @@
 [project]
 name = "pillowfort-installer"
 version = "0.1.0"
-description = "Cross-platform installer for Pillowfort/Busy38"
+description = "Cross-platform installer for PillowFort/Busy38"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = ["pyyaml"]

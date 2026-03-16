@@ -28,7 +28,7 @@ def _run(command: list[str], cwd: Path) -> None:
 
 
 def _parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Bootstrap the local Pillowfort repo environment")
+    parser = argparse.ArgumentParser(description="Bootstrap the local PillowFort repo environment")
     parser.add_argument(
         "--dev",
         action="store_true",

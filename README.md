@@ -1,6 +1,6 @@
-# Pillowfort Installer
+# PillowFort Installer
 
-Primary install path for creating a working Pillowfort/Busy38 system on
+Primary install path for creating a working PillowFort/Busy38 system on
 Windows, macOS, and Linux.
 
 The platform installer and CLI entrypoints in this repo are the supported
