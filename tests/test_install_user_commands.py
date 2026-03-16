@@ -210,3 +210,24 @@ def test_main_normalizes_relative_bin_dir_in_output(
     expected = str((tmp_path / "tmp-relative-bin").resolve())
     assert f"status for {expected}" in output
     assert expected in output
+
+
+def test_main_uninstall_does_not_print_path_hints(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr(
+        "sys.argv",
+        ["install_user_commands.py", "--uninstall", "--bin-dir", "tmp-relative-bin"],
+    )
+
+    assert main() == 0
+
+    output = capsys.readouterr().out
+    assert "uninstall from" in output
+    assert "PATH already includes" not in output
+    assert "export PATH=" not in output
+    assert "fish_add_path" not in output
+    assert "PowerShell persistence" not in output

@@ -306,7 +306,6 @@ def main() -> int:
         print(f"[command-install] uninstall from {bin_dir}")
         for name, target, state in uninstall_user_commands(repo_root=repo_root, bin_dir=bin_dir):
             print(f"[command-install] {name} -> {target} ({state})")
-        _print_path_hint(bin_dir, args.shell)
         return 0
 
     installed = install_user_commands(repo_root=repo_root, bin_dir=bin_dir, force=args.force)

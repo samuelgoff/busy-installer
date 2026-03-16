@@ -102,6 +102,8 @@ Printed PowerShell PATH hints now also use literal-safe quoting, so Windows
 copy-paste guidance stays correct for paths containing `$` or single quotes.
 Generated PowerShell installed-command shims now also fail fast if bootstrap
 fails, instead of continuing into a broken venv launch.
+The uninstall path now reports only removal status; it no longer prints PATH
+setup guidance afterward.
 
 Run tests and the bundled-manifest smoke check from that venv:
 
