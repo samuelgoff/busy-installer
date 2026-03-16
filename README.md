@@ -79,6 +79,8 @@ bootstrap the correct checkout even after being placed in another directory.
 `python3` but fall back to `python` when that is the available Python 3
 entrypoint on the host. `--force` only replaces installer-managed wrappers; it
 refuses to clobber unrelated files already present in the target bin directory.
+Executable PATH commands are now printed raw so they can be pasted directly;
+only the explanatory lines keep the `[command-install]` prefix.
 Generated Windows `.cmd` shims now also quote their internal environment
 assignments so repo paths with spaces stay safe. Install now preflights the
 whole target set before writing anything, so a foreign target fails closed

@@ -559,6 +559,28 @@ def test_main_status_without_managed_targets_skips_path_hints(
     assert "PowerShell persistence" not in output
 
 
+def test_main_install_prints_copy_pasteable_path_command(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setenv("PATH", "/usr/bin:/bin")
+    monkeypatch.setattr(
+        "sys.argv",
+        ["install_user_commands.py", "--bin-dir", "tmp-relative-bin", "--shell", "zsh"],
+    )
+
+    assert main() == 0
+
+    output = capsys.readouterr().out
+    expected = str((tmp_path / "tmp-relative-bin").resolve())
+    expected_command = path_hint_lines(Path(expected), shell="zsh")[0]
+    assert expected_command in output
+    assert f"[command-install] {expected_command}" not in output
+    assert "[command-install] Add that line to your ~/.zshrc for persistence." in output
+
+
 def test_main_status_with_managed_targets_reports_managed_summary(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,

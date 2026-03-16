@@ -35,6 +35,8 @@
     avoiding accidental removal of unrelated files in the same bin directory
   - shell-aware PATH hints are now available for `bash`, `zsh`, `fish`,
     PowerShell, and `cmd`
+  - executable PATH commands now print raw so they are directly copy-pasteable;
+    only explanatory lines keep the `[command-install]` prefix
   - installed user-bin wrappers are now repo-root-aware shims instead of raw
     copies/symlinks, so `pf` / `pillowfort` / `busy` still bootstrap the
     correct checkout after being installed into another directory

@@ -308,12 +308,30 @@ def path_hint_lines(bin_dir: Path, shell: str = "auto", *, os_name: str | None =
     return [f"Add {path_value} to your PATH to run pf / pillowfort / busy from any shell."]
 
 
+def _path_hint_command_count(shell: str, *, os_name: str | None = None) -> int:
+    normalized_shell = _detect_shell() if shell == "auto" else shell.lower()
+    effective_os_name = os.name if os_name is None else os_name
+    if normalized_shell in {"sh", "bash", "zsh", "fish"}:
+        return 1
+    if normalized_shell == "cmd":
+        return 2
+    if normalized_shell == "pwsh" and effective_os_name != "nt":
+        return 1
+    if normalized_shell in {"powershell", "pwsh"}:
+        return 3
+    return 0
+
+
 def _print_path_hint(bin_dir: Path, shell: str) -> None:
     if _path_contains(bin_dir):
         print(f"[command-install] PATH already includes {bin_dir}")
         return
-    for line in path_hint_lines(bin_dir, shell=shell):
-        print(f"[command-install] {line}")
+    command_count = _path_hint_command_count(shell)
+    for index, line in enumerate(path_hint_lines(bin_dir, shell=shell)):
+        if index < command_count:
+            print(line)
+        else:
+            print(f"[command-install] {line}")
 
 
 def _has_managed_targets(observed: list[tuple[str, Path, str]]) -> bool:
