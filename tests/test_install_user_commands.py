@@ -53,6 +53,16 @@ def test_install_user_commands_installs_public_wrappers(tmp_path: Path) -> None:
             assert "if errorlevel 1 exit /b %errorlevel%" in text
             assert text.count("if ($LASTEXITCODE -ne 0)") == 2
 
+    expected_names = {"pf", "pillowfort", "busy"} if os.name != "nt" else {
+        "pf.cmd",
+        "pillowfort.cmd",
+        "busy.cmd",
+        "pf.ps1",
+        "pillowfort.ps1",
+        "busy.ps1",
+    }
+    assert {entry.name for entry in bin_dir.iterdir()} == expected_names
+
 
 def test_inspect_and_uninstall_user_commands_track_managed_targets(tmp_path: Path) -> None:
     root = Path(__file__).resolve().parents[1]

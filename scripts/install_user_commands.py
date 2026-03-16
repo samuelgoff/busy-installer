@@ -4,6 +4,7 @@ import argparse
 import os
 import shlex
 import shutil
+import tempfile
 from pathlib import Path
 
 
@@ -132,10 +133,22 @@ def _target_state(repo_root: Path, source: Path, target: Path) -> str:
 
 def _install_one(repo_root: Path, source: Path, target: Path, *, force: bool) -> str:
     target.parent.mkdir(parents=True, exist_ok=True)
-    target.write_bytes(_managed_wrapper_bytes(repo_root, source.name))
-    if os.name != "nt":
-        target.chmod(0o755)
+    _write_atomic_bytes(target, _managed_wrapper_bytes(repo_root, source.name), executable=(os.name != "nt"))
     return "shim"
+
+
+def _write_atomic_bytes(target: Path, payload: bytes, *, executable: bool) -> None:
+    fd, temp_path = tempfile.mkstemp(prefix=f".{target.name}.", suffix=".tmp", dir=target.parent)
+    temp_target = Path(temp_path)
+    try:
+        with os.fdopen(fd, "wb") as handle:
+            handle.write(payload)
+        if executable:
+            temp_target.chmod(0o755)
+        temp_target.replace(target)
+    except Exception:
+        temp_target.unlink(missing_ok=True)
+        raise
 
 
 def install_user_commands(*, repo_root: Path, bin_dir: Path, force: bool) -> list[tuple[str, Path, str]]:

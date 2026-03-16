@@ -84,6 +84,8 @@
     forced rewrites of already-managed shims
   - status output now only prints PATH setup guidance when managed commands
     are actually present in the target bin directory
+  - wrapper writes now use same-directory atomic replace so interrupted writes
+    do not leave partially written shims at the final command paths
   - uninstall output no longer prints PATH setup guidance after reporting
     removal status
   - generated Windows `.cmd` user-bin shims now quote their internal

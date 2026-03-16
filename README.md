@@ -112,6 +112,8 @@ Install output now also reflects what actually happened: fresh installs report
 update/migration or forced rewrite passes report `reconciled in`.
 Status output now only prints PATH setup guidance when managed commands are
 actually present in the target bin directory.
+Wrapper writes now land via same-directory atomic replace, so an interrupted
+install cannot leave a partially written shim at the final command path.
 The uninstall path now reports only removal status; it no longer prints PATH
 setup guidance afterward.
 
