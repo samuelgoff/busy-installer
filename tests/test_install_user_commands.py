@@ -6,6 +6,7 @@ import pytest
 
 from scripts.install_user_commands import (
     _cmd_escape,
+    _detect_shell,
     _has_managed_targets,
     _status_summary,
     main,
@@ -239,6 +240,11 @@ def test_detect_windows_shell_prefers_cmd_prompt(monkeypatch: pytest.MonkeyPatch
 
     monkeypatch.delenv("PROMPT", raising=False)
     assert _detect_windows_shell() == "powershell"
+
+
+def test_detect_shell_prefers_posix_shells_on_windows(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.delenv("PROMPT", raising=False)
+    assert _detect_shell(os_name="nt", shell_value=r"C:\Program Files\Git\bin\bash.exe") == "bash"
 
 
 def test_main_normalizes_relative_bin_dir_in_output(

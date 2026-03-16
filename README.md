@@ -88,8 +88,10 @@ command using quoted `set "PATH=..."` syntax plus an explicit pointer to either
 System Properties or the safer PowerShell persistence command. That `cmd`
 output now also escapes literal `%` characters correctly, and generated `.cmd`
 shims do the same for repo paths containing `%`.
-On Windows, `--shell auto` now prefers `cmd` guidance when the helper is run
-from a `cmd.exe` session instead of always defaulting to PowerShell text.
+On Windows, `--shell auto` now respects supported POSIX shells such as Git
+Bash/MSYS2 when `SHELL` is set, and otherwise prefers `cmd` guidance when the
+helper is run from a `cmd.exe` session instead of always defaulting to
+PowerShell text.
 Rerunning the installer is now idempotent for already-managed shims, and older
 installer-managed wrapper copies/symlinks are migrated forward to the current
 shim format automatically. Generated POSIX user-bin shims now run under plain

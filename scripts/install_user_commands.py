@@ -48,6 +48,17 @@ def _cmd_escape(value: str) -> str:
     return value.replace("%", "%%")
 
 
+def _shell_name(shell_value: str) -> str:
+    normalized = shell_value.replace("\\", "/").rstrip("/")
+    if not normalized:
+        return ""
+    name = normalized.rsplit("/", 1)[-1].lower()
+    for suffix in (".exe", ".cmd", ".bat"):
+        if name.endswith(suffix):
+            return name[: -len(suffix)]
+    return name
+
+
 def _shim_content(repo_root: Path, name: str) -> str:
     normalized_root = repo_root.resolve()
     if name.endswith(".cmd"):
@@ -239,12 +250,12 @@ def _path_contains(bin_dir: Path) -> bool:
     return False
 
 
-def _detect_shell() -> str:
-    if os.name == "nt":
-        return _detect_windows_shell()
-    raw_shell = Path(os.environ.get("SHELL", "")).name.lower()
-    if raw_shell in {"bash", "zsh", "fish"}:
+def _detect_shell(*, os_name: str | None = None, shell_value: str | None = None) -> str:
+    raw_shell = _shell_name(os.environ.get("SHELL", "") if shell_value is None else shell_value)
+    if raw_shell in {"bash", "zsh", "fish", "sh"}:
         return raw_shell
+    if (os.name if os_name is None else os_name) == "nt":
+        return _detect_windows_shell()
     return "sh"
 
 

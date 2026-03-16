@@ -50,9 +50,10 @@
     safer PowerShell persistence command; literal `%` characters are now
     escaped correctly in both the printed `cmd` PATH hint and the generated
     `.cmd` shim paths
-  - On Windows, shell hint auto-detection now prefers `cmd` guidance when the
-    helper is invoked from a `cmd.exe` session instead of always defaulting to
-    PowerShell output
+  - On Windows, shell hint auto-detection now respects supported POSIX shells
+    such as Git Bash/MSYS2 when `SHELL` is set, and otherwise prefers `cmd`
+    guidance when the helper is invoked from a `cmd.exe` session instead of
+    always defaulting to PowerShell output
   - rerunning the user-bin installer is now idempotent for already-managed
     shims, and older installer-managed wrapper copies/symlinks are migrated to
     the current shim format automatically
