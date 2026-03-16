@@ -79,7 +79,9 @@
     reusable across shells and working directories
   - printed PowerShell PATH-hint commands now use literal-safe quoting, so
     copy-paste guidance stays correct for paths containing `$` or single
-    quotes
+    quotes; on non-Windows `pwsh` they now also use `:` separators and
+    `$PROFILE` persistence guidance instead of Windows-only PATH mutation
+    commands
   - `--shell` now fails fast on unknown shell names instead of silently
     falling back to generic output
   - the underlying Python helper functions now normalize relative `bin_dir`

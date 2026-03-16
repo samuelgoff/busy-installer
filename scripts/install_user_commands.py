@@ -267,10 +267,11 @@ def _powershell_quote(value: str) -> str:
     return "'" + value.replace("'", "''") + "'"
 
 
-def path_hint_lines(bin_dir: Path, shell: str = "auto") -> list[str]:
+def path_hint_lines(bin_dir: Path, shell: str = "auto", *, os_name: str | None = None) -> list[str]:
     normalized_shell = _detect_shell() if shell == "auto" else shell.lower()
     if normalized_shell not in SUPPORTED_SHELLS[1:]:
         raise ValueError(f"unsupported shell hint style: {shell}")
+    effective_os_name = os.name if os_name is None else os_name
     path_value = str(bin_dir)
     if normalized_shell in {"sh", "bash", "zsh"}:
         quoted_path = shlex.quote(path_value)
@@ -286,6 +287,11 @@ def path_hint_lines(bin_dir: Path, shell: str = "auto") -> list[str]:
         ]
     if normalized_shell in {"powershell", "pwsh"}:
         quoted_path = _powershell_quote(path_value)
+        if normalized_shell == "pwsh" and effective_os_name != "nt":
+            return [
+                f"$env:PATH = {quoted_path} + ':' + $env:PATH",
+                "Add that line to $PROFILE for persistence.",
+            ]
         return [
             f"$env:Path = {quoted_path} + ';' + $env:Path",
             '$userPath = [Environment]::GetEnvironmentVariable("Path", "User")',

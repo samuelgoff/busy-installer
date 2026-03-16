@@ -205,6 +205,10 @@ def test_path_hint_lines_are_shell_specific(tmp_path: Path) -> None:
         '$userPath = [Environment]::GetEnvironmentVariable("Path", "User")',
         f"if (($userPath -split ';') -notcontains {_powershell_quote(str(powershell_bin_dir))}) " + "{ [Environment]::SetEnvironmentVariable(\"Path\", (" + _powershell_quote(str(powershell_bin_dir)) + " + ';' + $userPath).TrimEnd(';'), \"User\") }",
     ]
+    assert path_hint_lines(powershell_bin_dir, shell="pwsh", os_name="posix") == [
+        f"$env:PATH = {_powershell_quote(str(powershell_bin_dir))} + ':' + $env:PATH",
+        "Add that line to $PROFILE for persistence.",
+    ]
     assert path_hint_lines(windows_bin_dir, shell="cmd") == [
         f'set "PATH={windows_bin_dir};%PATH%"',
         "Use System Properties > Environment Variables for a persistent cmd PATH update,",

@@ -103,8 +103,10 @@ guidance remains correct even when the target bin path contains expansion
 characters like `$`. Relative `--bin-dir` values are normalized to absolute
 paths before install/status/uninstall output so the printed guidance stays
 stable across shells and working directories.
-Printed PowerShell PATH hints now also use literal-safe quoting, so Windows
-copy-paste guidance stays correct for paths containing `$` or single quotes.
+Printed PowerShell PATH hints now also use literal-safe quoting, so copy-paste
+guidance stays correct for paths containing `$` or single quotes. On
+non-Windows `pwsh`, those hints now also use `:` separators and `$PROFILE`
+persistence guidance instead of Windows-only PATH mutation commands.
 Generated PowerShell installed-command shims now also fail fast if bootstrap
 fails, instead of continuing into a broken venv launch, and they now preserve
 non-zero app exits explicitly too. They now also resolve the repo root with
