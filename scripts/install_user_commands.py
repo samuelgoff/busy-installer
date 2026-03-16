@@ -73,6 +73,9 @@ def _shim_content(repo_root: Path, name: str) -> str:
             '  throw "Python 3 not found. Install Python 3.10+ and rerun."\n'
             '}\n\n'
             '& $python $Bootstrap\n'
+            'if ($LASTEXITCODE -ne 0) {\n'
+            '  exit $LASTEXITCODE\n'
+            '}\n'
             '& $VenvPython -m busy_installer.app @args\n'
         )
 
