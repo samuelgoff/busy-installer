@@ -22,6 +22,10 @@ def _default_bin_dir() -> Path:
     return home / ".local" / "bin"
 
 
+def _normalize_bin_dir(bin_dir: Path) -> Path:
+    return bin_dir.expanduser().resolve()
+
+
 def _public_commands() -> tuple[str, ...]:
     if os.name == "nt":
         return WINDOWS_COMMANDS
@@ -281,7 +285,7 @@ def _parse_args() -> argparse.Namespace:
 def main() -> int:
     args = _parse_args()
     repo_root = _repo_root()
-    bin_dir = args.bin_dir.expanduser()
+    bin_dir = _normalize_bin_dir(args.bin_dir)
 
     if args.status:
         print(f"[command-install] status for {bin_dir}")

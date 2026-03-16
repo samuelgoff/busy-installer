@@ -5,6 +5,7 @@ from pathlib import Path
 import pytest
 
 from scripts.install_user_commands import (
+    main,
     _detect_windows_shell,
     inspect_user_commands,
     install_user_commands,
@@ -187,3 +188,22 @@ def test_detect_windows_shell_prefers_cmd_prompt(monkeypatch: pytest.MonkeyPatch
 
     monkeypatch.delenv("PROMPT", raising=False)
     assert _detect_windows_shell() == "powershell"
+
+
+def test_main_normalizes_relative_bin_dir_in_output(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr(
+        "sys.argv",
+        ["install_user_commands.py", "--status", "--bin-dir", "tmp-relative-bin"],
+    )
+
+    assert main() == 0
+
+    output = capsys.readouterr().out
+    expected = str((tmp_path / "tmp-relative-bin").resolve())
+    assert f"status for {expected}" in output
+    assert expected in output

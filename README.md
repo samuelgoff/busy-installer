@@ -95,7 +95,9 @@ shim format automatically. Generated POSIX user-bin shims now run under plain
 fail fast if `.venv` bootstrap fails, instead of continuing into a broken app
 launch. Printed POSIX PATH hints now use shell-safe quoting too, so copy-paste
 guidance remains correct even when the target bin path contains expansion
-characters like `$`.
+characters like `$`. Relative `--bin-dir` values are normalized to absolute
+paths before install/status/uninstall output so the printed guidance stays
+stable across shells and working directories.
 
 Run tests and the bundled-manifest smoke check from that venv:
 
