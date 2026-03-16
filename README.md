@@ -110,6 +110,8 @@ too, so programmatic callers get the same absolute-path behavior as the CLI.
 Install output now also reflects what actually happened: fresh installs report
 `installed into`, fully managed reruns report `already installed in`, and mixed
 update/migration passes report `reconciled in`.
+Status output now only prints PATH setup guidance when managed commands are
+actually present in the target bin directory.
 The uninstall path now reports only removal status; it no longer prints PATH
 setup guidance afterward.
 

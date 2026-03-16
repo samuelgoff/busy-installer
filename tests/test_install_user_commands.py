@@ -5,6 +5,7 @@ from pathlib import Path
 import pytest
 
 from scripts.install_user_commands import (
+    _has_managed_targets,
     main,
     _detect_windows_shell,
     _install_summary_verb,
@@ -283,6 +284,16 @@ def test_install_summary_verb_matches_install_modes(tmp_path: Path) -> None:
     assert _install_summary_verb([("pf", target, "migrated-shim")]) == "reconciled in"
 
 
+def test_has_managed_targets_only_matches_managed_states(tmp_path: Path) -> None:
+    target = tmp_path / "bin" / "pf"
+
+    assert _has_managed_targets([("pf", target, "managed-shim")]) is True
+    assert _has_managed_targets([("pf", target, "legacy-managed-copy")]) is True
+    assert _has_managed_targets([("pf", target, "legacy-managed-symlink")]) is True
+    assert _has_managed_targets([("pf", target, "missing")]) is False
+    assert _has_managed_targets([("pf", target, "foreign-file")]) is False
+
+
 def test_main_rerun_reports_already_installed_heading(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -301,3 +312,23 @@ def test_main_rerun_reports_already_installed_heading(
     output = capsys.readouterr().out
     expected = str((tmp_path / "tmp-relative-bin").resolve())
     assert f"already installed in {expected}" in output
+
+
+def test_main_status_without_managed_targets_skips_path_hints(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr(
+        "sys.argv",
+        ["install_user_commands.py", "--status", "--bin-dir", "tmp-relative-bin"],
+    )
+
+    assert main() == 0
+
+    output = capsys.readouterr().out
+    assert "status for" in output
+    assert "export PATH=" not in output
+    assert "fish_add_path" not in output
+    assert "PowerShell persistence" not in output

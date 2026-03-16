@@ -265,6 +265,11 @@ def _print_path_hint(bin_dir: Path, shell: str) -> None:
         print(f"[command-install] {line}")
 
 
+def _has_managed_targets(observed: list[tuple[str, Path, str]]) -> bool:
+    managed_states = {"managed-shim", "legacy-managed-symlink", "legacy-managed-copy"}
+    return any(state in managed_states for _name, _target, state in observed)
+
+
 def _install_summary_verb(installed: list[tuple[str, Path, str]]) -> str:
     modes = {mode for _name, _target, mode in installed}
     if modes == {"managed"}:
@@ -313,10 +318,12 @@ def main() -> int:
     bin_dir = _normalize_bin_dir(args.bin_dir)
 
     if args.status:
+        observed = inspect_user_commands(repo_root=repo_root, bin_dir=bin_dir)
         print(f"[command-install] status for {bin_dir}")
-        for name, target, state in inspect_user_commands(repo_root=repo_root, bin_dir=bin_dir):
+        for name, target, state in observed:
             print(f"[command-install] {name} -> {target} ({state})")
-        _print_path_hint(bin_dir, args.shell)
+        if _has_managed_targets(observed):
+            _print_path_hint(bin_dir, args.shell)
         return 0
 
     if args.uninstall:
