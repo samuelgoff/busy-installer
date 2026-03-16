@@ -107,6 +107,8 @@ The `--shell` flag now also fails fast on unknown shell names instead of
 quietly falling back to generic output.
 The underlying Python helper functions now normalize relative `bin_dir` values
 too, so programmatic callers get the same absolute-path behavior as the CLI.
+The lower-level `path_hint_lines()` helper now follows that same contract and
+raises on unknown shell names instead of silently returning generic output.
 Install output now also reflects what actually happened: fresh installs report
 `installed into`, fully managed reruns report `already installed in`, and mixed
 update/migration or forced rewrite passes report `reconciled in`.

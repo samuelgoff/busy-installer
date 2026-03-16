@@ -244,6 +244,8 @@ def _powershell_quote(value: str) -> str:
 
 def path_hint_lines(bin_dir: Path, shell: str = "auto") -> list[str]:
     normalized_shell = _detect_shell() if shell == "auto" else shell.lower()
+    if normalized_shell not in SUPPORTED_SHELLS[1:]:
+        raise ValueError(f"unsupported shell hint style: {shell}")
     path_value = str(bin_dir)
     if normalized_shell in {"sh", "bash", "zsh"}:
         quoted_path = shlex.quote(path_value)

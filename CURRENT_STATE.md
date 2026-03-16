@@ -78,6 +78,8 @@
   - the underlying Python helper functions now normalize relative `bin_dir`
     values too, so programmatic callers get the same absolute-path behavior as
     the CLI entrypoint
+  - the lower-level `path_hint_lines()` helper now matches that contract and
+    raises on unknown shell names instead of silently returning generic output
   - install output headings now reflect actual state transitions instead of
     always claiming a fresh install:
     `installed into`, `already installed in`, or `reconciled in`, including

@@ -207,6 +207,11 @@ def test_path_hint_lines_are_shell_specific(tmp_path: Path) -> None:
     ]
 
 
+def test_path_hint_lines_reject_unknown_shell_name(tmp_path: Path) -> None:
+    with pytest.raises(ValueError, match="unsupported shell hint style: bogus-shell"):
+        path_hint_lines(tmp_path / "bin", shell="bogus-shell")
+
+
 def test_detect_windows_shell_prefers_cmd_prompt(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("PROMPT", "$P$G")
     assert _detect_windows_shell() == "cmd"
