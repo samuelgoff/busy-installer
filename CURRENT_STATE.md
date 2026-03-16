@@ -73,6 +73,8 @@
   - printed PowerShell PATH-hint commands now use literal-safe quoting, so
     copy-paste guidance stays correct for paths containing `$` or single
     quotes
+  - `--shell` now fails fast on unknown shell names instead of silently
+    falling back to generic output
   - uninstall output no longer prints PATH setup guidance after reporting
     removal status
   - generated Windows `.cmd` user-bin shims now quote their internal

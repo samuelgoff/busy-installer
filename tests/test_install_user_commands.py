@@ -231,3 +231,23 @@ def test_main_uninstall_does_not_print_path_hints(
     assert "export PATH=" not in output
     assert "fish_add_path" not in output
     assert "PowerShell persistence" not in output
+
+
+def test_main_rejects_unknown_shell_name(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr(
+        "sys.argv",
+        ["install_user_commands.py", "--status", "--shell", "bogus-shell"],
+    )
+
+    with pytest.raises(SystemExit) as excinfo:
+        main()
+
+    assert excinfo.value.code == 2
+    error = capsys.readouterr().err
+    assert "invalid choice" in error
+    assert "bogus-shell" in error

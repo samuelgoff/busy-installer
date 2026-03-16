@@ -9,6 +9,7 @@ from pathlib import Path
 
 POSIX_COMMANDS = ("pf", "pillowfort", "busy")
 WINDOWS_COMMANDS = ("pf.cmd", "pillowfort.cmd", "busy.cmd", "pf.ps1", "pillowfort.ps1", "busy.ps1")
+SUPPORTED_SHELLS = ("auto", "bash", "zsh", "fish", "powershell", "pwsh", "cmd", "sh")
 
 
 def _repo_root() -> Path:
@@ -277,6 +278,7 @@ def _parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--shell",
         default="auto",
+        choices=SUPPORTED_SHELLS,
         help="shell hint style for PATH guidance (auto, bash, zsh, fish, powershell, pwsh, cmd, sh)",
     )
     mode = parser.add_mutually_exclusive_group()

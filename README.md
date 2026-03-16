@@ -103,6 +103,8 @@ copy-paste guidance stays correct for paths containing `$` or single quotes.
 Generated PowerShell installed-command shims now also fail fast if bootstrap
 fails, instead of continuing into a broken venv launch, and they now preserve
 non-zero app exits explicitly too.
+The `--shell` flag now also fails fast on unknown shell names instead of
+quietly falling back to generic output.
 The uninstall path now reports only removal status; it no longer prints PATH
 setup guidance afterward.
 
