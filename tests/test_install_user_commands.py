@@ -212,6 +212,23 @@ def test_main_normalizes_relative_bin_dir_in_output(
     assert expected in output
 
 
+def test_helper_functions_normalize_relative_bin_dir(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    root = Path(__file__).resolve().parents[1]
+    monkeypatch.chdir(tmp_path)
+
+    installed = install_user_commands(repo_root=root, bin_dir=Path("tmp-relative-bin"), force=False)
+    inspected = inspect_user_commands(repo_root=root, bin_dir=Path("tmp-relative-bin"))
+    removed = uninstall_user_commands(repo_root=root, bin_dir=Path("tmp-relative-bin"))
+
+    expected_prefix = (tmp_path / "tmp-relative-bin").resolve()
+    assert all(target.parent == expected_prefix for _name, target, _mode in installed)
+    assert all(target.parent == expected_prefix for _name, target, _state in inspected)
+    assert all(target.parent == expected_prefix for _name, target, _state in removed)
+
+
 def test_main_uninstall_does_not_print_path_hints(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,

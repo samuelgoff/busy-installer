@@ -139,6 +139,7 @@ def _install_one(repo_root: Path, source: Path, target: Path, *, force: bool) ->
 
 
 def install_user_commands(*, repo_root: Path, bin_dir: Path, force: bool) -> list[tuple[str, Path, str]]:
+    bin_dir = _normalize_bin_dir(bin_dir)
     planned: list[tuple[str, Path, Path, str, str]] = []
     for name in _public_commands():
         source = repo_root / name
@@ -173,6 +174,7 @@ def install_user_commands(*, repo_root: Path, bin_dir: Path, force: bool) -> lis
 
 
 def inspect_user_commands(*, repo_root: Path, bin_dir: Path) -> list[tuple[str, Path, str]]:
+    bin_dir = _normalize_bin_dir(bin_dir)
     observed: list[tuple[str, Path, str]] = []
     for name in _public_commands():
         source = repo_root / name
@@ -183,6 +185,7 @@ def inspect_user_commands(*, repo_root: Path, bin_dir: Path) -> list[tuple[str, 
 
 
 def uninstall_user_commands(*, repo_root: Path, bin_dir: Path) -> list[tuple[str, Path, str]]:
+    bin_dir = _normalize_bin_dir(bin_dir)
     removed: list[tuple[str, Path, str]] = []
     for name, target, state in inspect_user_commands(repo_root=repo_root, bin_dir=bin_dir):
         if state in {"managed-shim", "legacy-managed-symlink", "legacy-managed-copy"}:

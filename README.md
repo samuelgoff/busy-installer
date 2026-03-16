@@ -105,6 +105,8 @@ fails, instead of continuing into a broken venv launch, and they now preserve
 non-zero app exits explicitly too.
 The `--shell` flag now also fails fast on unknown shell names instead of
 quietly falling back to generic output.
+The underlying Python helper functions now normalize relative `bin_dir` values
+too, so programmatic callers get the same absolute-path behavior as the CLI.
 The uninstall path now reports only removal status; it no longer prints PATH
 setup guidance afterward.
 

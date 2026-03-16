@@ -75,6 +75,9 @@
     quotes
   - `--shell` now fails fast on unknown shell names instead of silently
     falling back to generic output
+  - the underlying Python helper functions now normalize relative `bin_dir`
+    values too, so programmatic callers get the same absolute-path behavior as
+    the CLI entrypoint
   - uninstall output no longer prints PATH setup guidance after reporting
     removal status
   - generated Windows `.cmd` user-bin shims now quote their internal
