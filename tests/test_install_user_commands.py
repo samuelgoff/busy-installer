@@ -366,6 +366,38 @@ def test_main_status_rejects_broken_symlink_bin_dir(
         main()
 
 
+def test_helper_functions_reject_bin_dir_beneath_file(tmp_path: Path) -> None:
+    root = Path(__file__).resolve().parents[1]
+    file_target = tmp_path / "not-a-directory"
+    file_target.write_text("foreign", encoding="utf-8")
+    nested_bin_dir = file_target / "nested-bin"
+
+    with pytest.raises(SystemExit, match="bin directory is not a directory"):
+        install_user_commands(repo_root=root, bin_dir=nested_bin_dir, force=False)
+
+    with pytest.raises(SystemExit, match="bin directory is not a directory"):
+        inspect_user_commands(repo_root=root, bin_dir=nested_bin_dir)
+
+    with pytest.raises(SystemExit, match="bin directory is not a directory"):
+        uninstall_user_commands(repo_root=root, bin_dir=nested_bin_dir)
+
+
+def test_main_status_rejects_bin_dir_beneath_file(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    file_target = tmp_path / "not-a-directory"
+    file_target.write_text("foreign", encoding="utf-8")
+    nested_bin_dir = file_target / "nested-bin"
+    monkeypatch.setattr(
+        "sys.argv",
+        ["install_user_commands.py", "--status", "--bin-dir", str(nested_bin_dir)],
+    )
+
+    with pytest.raises(SystemExit, match="bin directory is not a directory"):
+        main()
+
+
 def test_install_summary_verb_matches_install_modes(tmp_path: Path) -> None:
     target = tmp_path / "bin" / "pf"
 

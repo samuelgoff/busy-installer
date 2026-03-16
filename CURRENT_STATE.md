@@ -78,9 +78,10 @@
   - the underlying Python helper functions now normalize relative `bin_dir`
     values too, so programmatic callers get the same absolute-path behavior as
     the CLI entrypoint
-  - existing `bin_dir` paths now also fail closed when they point at a file or
-    broken symlink instead of a directory, so status/install/uninstall do not
-    silently treat non-directory paths like empty bins
+  - existing `bin_dir` paths now also fail closed when they point at a file,
+    broken symlink, or a path nested beneath either one instead of a
+    directory, so status/install/uninstall do not silently treat
+    non-directory paths like empty bins
   - the lower-level `path_hint_lines()` helper now matches that contract and
     raises on unknown shell names instead of silently returning generic output
   - install output headings now reflect actual state transitions instead of
