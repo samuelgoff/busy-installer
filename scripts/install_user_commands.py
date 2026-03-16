@@ -212,6 +212,10 @@ def _detect_windows_shell() -> str:
     return "cmd" if os.environ.get("PROMPT", "").strip() else "powershell"
 
 
+def _powershell_quote(value: str) -> str:
+    return "'" + value.replace("'", "''") + "'"
+
+
 def path_hint_lines(bin_dir: Path, shell: str = "auto") -> list[str]:
     normalized_shell = _detect_shell() if shell == "auto" else shell.lower()
     path_value = str(bin_dir)
@@ -228,10 +232,11 @@ def path_hint_lines(bin_dir: Path, shell: str = "auto") -> list[str]:
             "Add that to config.fish for persistence.",
         ]
     if normalized_shell in {"powershell", "pwsh"}:
+        quoted_path = _powershell_quote(path_value)
         return [
-            f'$env:Path = "{path_value};" + $env:Path',
+            f"$env:Path = {quoted_path} + ';' + $env:Path",
             '$userPath = [Environment]::GetEnvironmentVariable("Path", "User")',
-            f'if (($userPath -split ";") -notcontains "{path_value}") ' + "{ [Environment]::SetEnvironmentVariable(\"Path\", (\"" + path_value + ';\" + $userPath).TrimEnd(\';\'), \"User\") }',
+            f"if (($userPath -split ';') -notcontains {quoted_path}) " + "{ [Environment]::SetEnvironmentVariable(\"Path\", (" + quoted_path + " + ';' + $userPath).TrimEnd(';'), \"User\") }",
         ]
     if normalized_shell == "cmd":
         return [

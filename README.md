@@ -98,6 +98,8 @@ guidance remains correct even when the target bin path contains expansion
 characters like `$`. Relative `--bin-dir` values are normalized to absolute
 paths before install/status/uninstall output so the printed guidance stays
 stable across shells and working directories.
+Printed PowerShell PATH hints now also use literal-safe quoting, so Windows
+copy-paste guidance stays correct for paths containing `$` or single quotes.
 
 Run tests and the bundled-manifest smoke check from that venv:
 

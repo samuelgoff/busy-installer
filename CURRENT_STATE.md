@@ -65,6 +65,9 @@
   - relative `--bin-dir` values are now normalized to absolute paths before
     install/status/uninstall output so the printed guidance is stable and
     reusable across shells and working directories
+  - printed PowerShell PATH-hint commands now use literal-safe quoting, so
+    copy-paste guidance stays correct for paths containing `$` or single
+    quotes
   - generated Windows `.cmd` user-bin shims now quote their internal
     environment-variable assignments, so repo paths with spaces remain safe
   - user-bin install now preflights the full target set before writing any

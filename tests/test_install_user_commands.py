@@ -7,6 +7,7 @@ import pytest
 from scripts.install_user_commands import (
     main,
     _detect_windows_shell,
+    _powershell_quote,
     inspect_user_commands,
     install_user_commands,
     path_hint_lines,
@@ -161,6 +162,7 @@ def test_path_hint_lines_are_shell_specific(tmp_path: Path) -> None:
     bin_dir = tmp_path / "bin"
     posix_bin_dir = tmp_path / "bin $ tools"
     windows_bin_dir = tmp_path / "bin & tools"
+    powershell_bin_dir = tmp_path / "bin $ tools's"
 
     assert path_hint_lines(posix_bin_dir, shell="zsh") == [
         f"export PATH='{posix_bin_dir}':\"$PATH\"",
@@ -170,10 +172,10 @@ def test_path_hint_lines_are_shell_specific(tmp_path: Path) -> None:
         f"fish_add_path '{posix_bin_dir}'",
         "Add that to config.fish for persistence.",
     ]
-    assert path_hint_lines(bin_dir, shell="powershell") == [
-        f'$env:Path = "{bin_dir};" + $env:Path',
+    assert path_hint_lines(powershell_bin_dir, shell="powershell") == [
+        f"$env:Path = {_powershell_quote(str(powershell_bin_dir))} + ';' + $env:Path",
         '$userPath = [Environment]::GetEnvironmentVariable("Path", "User")',
-        f'if (($userPath -split ";") -notcontains "{bin_dir}") ' + "{ [Environment]::SetEnvironmentVariable(\"Path\", (\"" + str(bin_dir) + ';\" + $userPath).TrimEnd(\';\'), \"User\") }',
+        f"if (($userPath -split ';') -notcontains {_powershell_quote(str(powershell_bin_dir))}) " + "{ [Environment]::SetEnvironmentVariable(\"Path\", (" + _powershell_quote(str(powershell_bin_dir)) + " + ';' + $userPath).TrimEnd(';'), \"User\") }",
     ]
     assert path_hint_lines(windows_bin_dir, shell="cmd") == [
         f'set "PATH={windows_bin_dir};%PATH%"',
