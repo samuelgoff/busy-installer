@@ -149,10 +149,13 @@ def install_user_commands(*, repo_root: Path, bin_dir: Path, force: bool) -> lis
         state = _target_state(repo_root, source, target)
         if state in {"foreign-file", "foreign-symlink", "broken-symlink", "foreign-directory"}:
             raise SystemExit(f"refusing to replace non-managed target: {target} ({state})")
-        if state == "managed-shim" and not force:
-            planned.append((name, source, target, state, "managed"))
+        if state == "managed-shim":
+            if force:
+                planned.append((name, source, target, state, "reinstalled-shim"))
+            else:
+                planned.append((name, source, target, state, "managed"))
             continue
-        if state in {"legacy-managed-symlink", "legacy-managed-copy"} and not force:
+        if state in {"legacy-managed-symlink", "legacy-managed-copy"}:
             planned.append((name, source, target, state, "migrated-shim"))
             continue
         if state != "missing" and not force:
@@ -167,7 +170,7 @@ def install_user_commands(*, repo_root: Path, bin_dir: Path, force: bool) -> lis
         if state != "missing":
             target.unlink()
         mode = _install_one(repo_root, source, target, force=force)
-        if action == "migrated-shim":
+        if action in {"migrated-shim", "reinstalled-shim"}:
             mode = action
         installed.append((name, target, mode))
     return installed
@@ -274,7 +277,7 @@ def _install_summary_verb(installed: list[tuple[str, Path, str]]) -> str:
     modes = {mode for _name, _target, mode in installed}
     if modes == {"managed"}:
         return "already installed in"
-    if "migrated-shim" in modes or "managed" in modes:
+    if "migrated-shim" in modes or "managed" in modes or "reinstalled-shim" in modes:
         return "reconciled in"
     return "installed into"
 

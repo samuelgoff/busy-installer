@@ -80,7 +80,8 @@
     the CLI entrypoint
   - install output headings now reflect actual state transitions instead of
     always claiming a fresh install:
-    `installed into`, `already installed in`, or `reconciled in`
+    `installed into`, `already installed in`, or `reconciled in`, including
+    forced rewrites of already-managed shims
   - status output now only prints PATH setup guidance when managed commands
     are actually present in the target bin directory
   - uninstall output no longer prints PATH setup guidance after reporting

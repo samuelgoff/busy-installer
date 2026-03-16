@@ -83,6 +83,16 @@ def test_install_user_commands_is_idempotent_for_managed_shims(tmp_path: Path) -
     assert all(mode == "managed" for _name, _target, mode in second)
 
 
+def test_install_user_commands_force_reinstalls_managed_shims(tmp_path: Path) -> None:
+    root = Path(__file__).resolve().parents[1]
+    bin_dir = tmp_path / "bin"
+
+    install_user_commands(repo_root=root, bin_dir=bin_dir, force=False)
+    forced = install_user_commands(repo_root=root, bin_dir=bin_dir, force=True)
+
+    assert all(mode == "reinstalled-shim" for _name, _target, mode in forced)
+
+
 def test_uninstall_also_removes_legacy_managed_symlinks(tmp_path: Path) -> None:
     if os.name == "nt":
         return
@@ -282,6 +292,7 @@ def test_install_summary_verb_matches_install_modes(tmp_path: Path) -> None:
         ("pillowfort", target, "shim"),
     ]) == "reconciled in"
     assert _install_summary_verb([("pf", target, "migrated-shim")]) == "reconciled in"
+    assert _install_summary_verb([("pf", target, "reinstalled-shim")]) == "reconciled in"
 
 
 def test_has_managed_targets_only_matches_managed_states(tmp_path: Path) -> None:
@@ -312,6 +323,30 @@ def test_main_rerun_reports_already_installed_heading(
     output = capsys.readouterr().out
     expected = str((tmp_path / "tmp-relative-bin").resolve())
     assert f"already installed in {expected}" in output
+
+
+def test_main_force_rerun_reports_reconciled_heading(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr(
+        "sys.argv",
+        ["install_user_commands.py", "--bin-dir", "tmp-relative-bin"],
+    )
+
+    assert main() == 0
+    capsys.readouterr()
+    monkeypatch.setattr(
+        "sys.argv",
+        ["install_user_commands.py", "--bin-dir", "tmp-relative-bin", "--force"],
+    )
+    assert main() == 0
+
+    output = capsys.readouterr().out
+    expected = str((tmp_path / "tmp-relative-bin").resolve())
+    assert f"reconciled in {expected}" in output
 
 
 def test_main_status_without_managed_targets_skips_path_hints(
